@@ -8,7 +8,6 @@ set -e
 
 # 스크립트 경로 설정
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# main.py가 checker.py와 동일한 파일이라고 가정합니다. 파일명이 다르면 수정해주세요.
 PYTHON_SCRIPT="${SCRIPT_DIR}/scripts/main.py" 
 INVENTORY_FILE="${SCRIPT_DIR}/config/dev-inventory.yaml"
 CHECKS_FILE="${SCRIPT_DIR}/config/check_items.yaml"
@@ -37,7 +36,7 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# [수정됨] 의존성 확인 로직 개선
+# 의존성 확인 로직
 check_dependencies() {
     log_info "의존성 확인 중..."
     
@@ -60,7 +59,7 @@ check_dependencies() {
         if ! python3 -c "import ${module_name}" 2>/dev/null; then
             log_warning "${pkg} (모듈명: ${module_name}) 패키지가 없습니다. 설치 중..."
             
-            # python3 -m pip 사용 (가상환경 pip 확실하게 사용)
+            # python3 -m pip 사용 (가상환경 pip 사용)
             python3 -m pip install ${pkg} --quiet 2>/dev/null || \
             log_warning "${pkg} 설치 실패. 인터넷 연결이나 권한을 확인하세요."
         fi
@@ -74,7 +73,6 @@ check_config_files() {
     log_info "설정 파일 확인 중..."
     
     if [ ! -f "${INVENTORY_FILE}" ]; then
-        # 파일이 없으면 빈 파일이라도 생성하여 스크립트가 멈추지 않게 처리하거나 경고
         log_warning "인벤토리 파일을 찾을 수 없습니다: ${INVENTORY_FILE}"
         log_info "기본 템플릿을 생성합니다..."
         mkdir -p "$(dirname "${INVENTORY_FILE}")"
@@ -165,7 +163,6 @@ main() {
     exit $exit_code
 }
 
-# 인자 처리
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     show_help
     exit 0
