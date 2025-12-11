@@ -49,7 +49,6 @@ class RemoteExecutor:
         
     def _load_inventory(self, path: str) -> dict:
         """인벤토리 파일 로드"""
-        # 환경변수로 경로 오버라이드 가능
         inventory_path = os.environ.get('CMP_INVENTORY_PATH', path)
         
         try:
