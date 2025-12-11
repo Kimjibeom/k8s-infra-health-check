@@ -54,14 +54,6 @@ os_checks:
     severity: "medium"
     
   - id: OS-007
-    name: "Swap 사용량"
-    description: "Swap 메모리 사용률 확인"
-    command: "free -m | awk 'NR==3{if($2>0) printf \"%.1f\", $3*100/$2; else print \"0\"}'"
-    threshold: 50
-    unit: "%"
-    severity: "medium"
-    
-  - id: OS-008
     name: "열린 파일 수"
     description: "시스템 전체 열린 파일 디스크립터 수"
     command: "cat /proc/sys/fs/file-nr | awk '{print $1}'"
@@ -69,7 +61,7 @@ os_checks:
     unit: "개"
     severity: "low"
 
-  - id: OS-009
+  - id: OS-008
     name: "네트워크 연결"
     description: "ESTABLISHED 상태 TCP 연결 수"
     command: "ss -t state established 2>/dev/null | wc -l"
@@ -77,7 +69,7 @@ os_checks:
     unit: "개"
     severity: "low"
     
-  - id: OS-010
+  - id: OS-009
     name: "커널 버전"
     description: "현재 커널 버전 정보"
     command: "uname -r"

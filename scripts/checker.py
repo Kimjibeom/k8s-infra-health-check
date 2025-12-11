@@ -198,10 +198,9 @@ class CMPInfraChecker:
             'OS-004': ('up 15 days, 4 hours', CheckStatus.OK, '정상 가동 중'),
             'OS-005': ('0', CheckStatus.OK, '좀비 프로세스 없음'),
             'OS-006': ('1.25', CheckStatus.OK, '정상 범위'),
-            'OS-007': ('12.3', CheckStatus.OK, '정상 범위'),
-            'OS-008': ('3456', CheckStatus.OK, '정상 범위'),
-            'OS-009': ('128', CheckStatus.OK, '정상 범위'),
-            'OS-010': ('5.15.0-91-generic', CheckStatus.OK, '커널 정보 확인'),
+            'OS-007': ('3456', CheckStatus.OK, '정상 범위'),
+            'OS-008': ('128', CheckStatus.OK, '정상 범위'),
+            'OS-009': ('5.15.0-91-generic', CheckStatus.OK, '커널 정보 확인'),
         }
         check_id = check['id']
         value, status, message = demo_values.get(check_id, ('N/A', CheckStatus.UNKNOWN, '데모 데이터 없음'))
