@@ -10,7 +10,6 @@ from datetime import datetime
 from typing import List, Dict, Any
 from dataclasses import dataclass
 
-# DOCX 생성
 try:
     from docx import Document
     from docx.shared import Inches, Pt, RGBColor, Cm
@@ -84,7 +83,6 @@ class CMPReportGenerator:
         
         doc = Document()
         
-        # 제목
         title = doc.add_heading(self._get_report_title(), 0)
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
         
