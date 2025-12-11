@@ -71,10 +71,7 @@ def main():
     
     args = parser.parse_args()
     
-    # 설정 파일 존재 여부 확인 (inventory는 없으면 경고만 하고 진행할 수도 있으나 여기선 필수로 체크)
     if not os.path.exists(args.inventory):
-        # 파일이 없으면 빈 껍데기라도 로드하도록 처리하거나 종료
-        # 여기서는 안전하게 종료
         if not args.quiet:
             print(f"❌ 인벤토리 파일을 찾을 수 없습니다: {args.inventory}")
         sys.exit(1)
@@ -84,7 +81,6 @@ def main():
             print(f"❌ 점검 항목 파일을 찾을 수 없습니다: {args.checks}")
         sys.exit(1)
     
-    # 설정 로드
     inventory = load_inventory_config(args.inventory)
     report_config = create_report_config(inventory, args.type, args.output_dir)
     
@@ -99,7 +95,6 @@ def main():
         print(f"   점검 환경: {args.env.upper()}")
         print("=" * 70)
     
-    # 점검 실행
     checker = CMPInfraChecker(
         inventory_path=args.inventory,
         checks_path=args.checks,
@@ -108,20 +103,17 @@ def main():
     
     results = checker.run_all_checks()
     
-    # [추가된 로직] 점검 결과가 하나도 없으면 여기서 종료
     if not results:
         if not args.quiet:
             print("\n" + "=" * 70)
             print("⚠️  진행된 점검 항목이 없습니다 (0건).")
             print("    config/dev-inventory.yaml 파일에 서버/클러스터 정보가 있는지 확인해주세요.")
             print("=" * 70)
-        # 에러는 아니므로 0으로 종료
         sys.exit(0)
 
     results_dict = checker.to_dict()
     summary = checker.get_summary()
     
-    # JSON 출력 모드
     if args.json:
         import json
         output = {
@@ -133,7 +125,6 @@ def main():
         print(json.dumps(output, ensure_ascii=False, indent=2))
         return
     
-    # 요약 출력
     if not args.quiet:
         print("\n" + "=" * 70)
         print("📊 점검 결과 요약")
@@ -145,7 +136,6 @@ def main():
         print(f"   ❓ 확인불가: {summary['unknown']}")
         print("=" * 70)
         
-        # 환경별 결과가 있을 때만 출력
         if summary.get('by_environment'):
             print("\n📂 환경별 결과:")
             for env, env_summary in summary.get('by_environment', {}).items():
@@ -156,7 +146,6 @@ def main():
             for cat, cat_summary in summary.get('by_category', {}).items():
                 print(f"   {cat}: ✅{cat_summary['ok']} ⚠️{cat_summary['warning']} ❌{cat_summary['critical']} ❓{cat_summary['unknown']}")
     
-    # 보고서 생성
     if not args.quiet:
         print("\n📝 보고서 생성 중...")
     
@@ -173,7 +162,6 @@ def main():
             import traceback
             traceback.print_exc()
 
-    # 조치 필요 항목 출력
     issues = [r for r in results_dict if r.get('상태') in ['경고', '위험']]
     if issues and not args.quiet:
         print("\n" + "=" * 70)
@@ -194,7 +182,6 @@ def main():
         print("✅ 점검 완료")
         print("=" * 70)
     
-    # 종료 코드 (CI/CD 파이프라인 등에서 활용)
     if summary['critical'] > 0:
         sys.exit(2)
     elif summary['warning'] > 0:
