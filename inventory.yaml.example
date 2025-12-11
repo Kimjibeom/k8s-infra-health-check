@@ -1,0 +1,306 @@
+# CMP 인프라 인벤토리 설정 예시
+# 이 파일을 inventory.yaml로 복사하여 실제 IP/Port 정보를 입력하세요
+# inventory.yaml은 .gitignore에 포함되어 Git에 커밋되지 않습니다
+#
+# 복사 명령어:
+#   cp config/inventory.yaml.example config/inventory.yaml
+
+# ============================================
+# CI/CD 인프라 서버
+# ============================================
+cicd_servers:
+  repo:
+    name: "Repo 서버"
+    hostname: "repo-server"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "Repository"
+        port: 80
+        
+  nexus:
+    name: "Nexus 서버"
+    hostname: "nexus-server"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "Nexus Web"
+        port: 8081
+      - name: "Docker Registry"
+        port: 5000
+        
+  jenkins_primary:
+    name: "Jenkins #1 (Primary)"
+    hostname: "jenkins1"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "Jenkins"
+        port: 8080
+        
+  jenkins_secondary:
+    name: "Jenkins #2 (Backup)"
+    hostname: "jenkins2"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "Jenkins"
+        port: 8080
+        
+  gitlab_primary:
+    name: "GitLab #1"
+    hostname: "gitlab1"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "GitLab"
+        port: 80
+        
+  gitlab_secondary:
+    name: "GitLab #2"
+    hostname: "gitlab2"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "GitLab"
+        port: 80
+
+# ============================================
+# 개발 클러스터 (DEV)
+# ============================================
+dev_cluster:
+  name: "개발 클러스터"
+  env: "DEV"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "dev-master1"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "dev-master2"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "dev-master3"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "dev-worker1"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "dev-worker2"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "dev-worker3"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "dev-bastion"
+    ip: "10.x.x.x"           # 실제 IP로 변경
+    ssh_port: 22
+    services:
+      - name: "NFS"
+        port: 2049
+        
+  databases:
+    - name: "DB #1"
+      hostname: "dev-db1"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+    - name: "DB #2"
+      hostname: "dev-db2"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+  namespaces:
+    - "DEV1"
+    - "DEV2"
+    
+  k8s_api_port: 443
+
+# ============================================
+# 스테이징 클러스터 (STG)
+# ============================================
+stg_cluster:
+  name: "스테이징 클러스터"
+  env: "STG"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "stg-master1"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "stg-master2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "stg-master3"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "stg-worker1"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "stg-worker2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "stg-worker3"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "stg-bastion"
+    ip: "10.x.x.x"
+    ssh_port: 22
+        
+  databases:
+    - name: "DB #1"
+      hostname: "stg-db1"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+    - name: "DB #2"
+      hostname: "stg-db2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+  k8s_api_port: 443
+
+# ============================================
+# 운영 클러스터 (PRD)
+# ============================================
+prd_cluster:
+  name: "운영 클러스터"
+  env: "PRD"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "prd-master1"
+      ip: "10.x.x.x"         # 실제 IP로 변경
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "prd-master2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "prd-master3"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "prd-worker1"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "prd-worker2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "prd-worker3"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "prd-bastion"
+    ip: "10.x.x.x"
+    ssh_port: 22
+        
+  databases:
+    - name: "DB #1"
+      hostname: "prd-db1"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+    - name: "DB #2"
+      hostname: "prd-db2"
+      ip: "10.x.x.x"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+  k8s_api_port: 443
+
+# ============================================
+# SSH 접속 설정
+# ============================================
+ssh_config:
+  # SSH 키 파일 경로
+  private_key_path: "~/.ssh/id_rsa"
+  # 또는 환경변수: ${SSH_PRIVATE_KEY_PATH}
+  
+  # SSH 사용자
+  default_user: "admin"
+  # 또는 환경변수: ${SSH_USER}
+  
+  # 연결 타임아웃 (초)
+  connect_timeout: 10
+  command_timeout: 30
+
+# ============================================
+# 알림 설정
+# ============================================
+notifications:
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "#cmp-infra-alerts"
+    
+  email:
+    enabled: false
+    smtp_server: "smtp.example.com"
+    smtp_port: 587
+    sender: "infra-check@example.com"
+    recipients:
+      - "admin@example.com"
+
+# ============================================
+# 보고서 설정
+# ============================================
+report:
+  company_name: "CMP 인프라"
+  team_name: "플랫폼팀"
+  output_dir: "./output"

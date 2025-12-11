@@ -1,0 +1,446 @@
+# CMP 인프라 점검 항목 설정
+# OS, Kubernetes, K8s 서비스 점검 항목 정의
+
+# ============================================
+# OS 점검 항목
+# ============================================
+os_checks:
+  - id: OS-001
+    name: "디스크 사용량"
+    description: "루트 파일시스템 디스크 사용률 확인"
+    command: "df -h / | awk 'NR==2{gsub(/%/,\"\"); print $5}'"
+    threshold: 80
+    unit: "%"
+    severity: "high"
+    
+  - id: OS-002
+    name: "메모리 사용량"
+    description: "시스템 메모리 사용률 확인"
+    command: "free -m | awk 'NR==2{printf \"%.1f\", $3*100/$2}'"
+    threshold: 85
+    unit: "%"
+    severity: "high"
+    
+  - id: OS-003
+    name: "CPU 사용량"
+    description: "CPU 평균 사용률 확인"
+    command: "top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'.' -f1"
+    threshold: 90
+    unit: "%"
+    severity: "high"
+    
+  - id: OS-004
+    name: "시스템 업타임"
+    description: "시스템 가동 시간 확인"
+    command: "uptime -p 2>/dev/null || uptime | awk -F'up' '{print $2}' | awk -F',' '{print $1}'"
+    threshold: null
+    unit: ""
+    severity: "info"
+    
+  - id: OS-005
+    name: "좀비 프로세스"
+    description: "좀비 프로세스 개수 확인"
+    command: "ps aux 2>/dev/null | awk '$8==\"Z\"' | wc -l"
+    threshold: 0
+    unit: "개"
+    severity: "medium"
+    
+  - id: OS-006
+    name: "로드 애버리지"
+    description: "1분 평균 로드 확인"
+    command: "cat /proc/loadavg | awk '{print $1}'"
+    threshold: 8.0
+    unit: ""
+    severity: "medium"
+    
+  - id: OS-007
+    name: "Swap 사용량"
+    description: "Swap 메모리 사용률 확인"
+    command: "free -m | awk 'NR==3{if($2>0) printf \"%.1f\", $3*100/$2; else print \"0\"}'"
+    threshold: 50
+    unit: "%"
+    severity: "medium"
+    
+  - id: OS-008
+    name: "열린 파일 수"
+    description: "시스템 전체 열린 파일 디스크립터 수"
+    command: "cat /proc/sys/fs/file-nr | awk '{print $1}'"
+    threshold: 100000
+    unit: "개"
+    severity: "low"
+
+  - id: OS-009
+    name: "네트워크 연결"
+    description: "ESTABLISHED 상태 TCP 연결 수"
+    command: "ss -t state established 2>/dev/null | wc -l"
+    threshold: 2000
+    unit: "개"
+    severity: "low"
+    
+  - id: OS-010
+    name: "커널 버전"
+    description: "현재 커널 버전 정보"
+    command: "uname -r"
+    threshold: null
+    unit: ""
+    severity: "info"
+
+# ============================================
+# Kubernetes 클러스터 점검 항목
+# ============================================
+k8s_cluster_checks:
+  - id: K8S-001
+    name: "노드 상태"
+    description: "모든 노드 Ready 상태 확인"
+    command: "kubectl get nodes --no-headers 2>/dev/null | awk '{print $1\":\"$2}'"
+    expected: "Ready"
+    severity: "critical"
+    
+  - id: K8S-002
+    name: "노드 CPU 사용량"
+    description: "노드별 CPU 사용률"
+    command: "kubectl top nodes --no-headers 2>/dev/null | awk '{gsub(/%/,\"\",$3); print $1\":\"$3}'"
+    threshold: 80
+    unit: "%"
+    severity: "high"
+    
+  - id: K8S-003
+    name: "노드 메모리 사용량"
+    description: "노드별 메모리 사용률"
+    command: "kubectl top nodes --no-headers 2>/dev/null | awk '{gsub(/%/,\"\",$5); print $1\":\"$5}'"
+    threshold: 80
+    unit: "%"
+    severity: "high"
+    
+  - id: K8S-004
+    name: "Control Plane Pod 상태"
+    description: "kube-system 네임스페이스 Pod 상태"
+    command: "kubectl get pods -n kube-system --no-headers 2>/dev/null | awk '{print $1\":\"$3}'"
+    expected: "Running"
+    severity: "critical"
+    
+  - id: K8S-005
+    name: "PV 상태"
+    description: "PersistentVolume 바인딩 상태"
+    command: "kubectl get pv --no-headers 2>/dev/null | awk '{print $1\":\"$5}'"
+    expected: "Bound"
+    severity: "high"
+    
+  - id: K8S-006
+    name: "PVC 상태"
+    description: "PersistentVolumeClaim 바인딩 상태"
+    command: "kubectl get pvc --all-namespaces --no-headers 2>/dev/null | awk '{print $2\":\"$3}'"
+    expected: "Bound"
+    severity: "high"
+    
+  - id: K8S-007
+    name: "Warning 이벤트"
+    description: "최근 Warning 이벤트 수"
+    command: "kubectl get events --all-namespaces --field-selector type=Warning 2>/dev/null | tail -n +2 | wc -l"
+    threshold: 20
+    unit: "개"
+    severity: "medium"
+    
+  - id: K8S-008
+    name: "NotReady 노드"
+    description: "NotReady 상태 노드 수"
+    command: "kubectl get nodes 2>/dev/null | grep -c NotReady || echo '0'"
+    threshold: 0
+    unit: "개"
+    severity: "critical"
+    
+  - id: K8S-009
+    name: "클러스터 버전"
+    description: "Kubernetes 클러스터 버전"
+    command: "kubectl version --short 2>/dev/null | grep Server | awk '{print $3}' || kubectl version 2>/dev/null | grep 'Server Version' | awk '{print $3}'"
+    threshold: null
+    unit: ""
+    severity: "info"
+
+# ============================================
+# K8s 서비스/워크로드 점검 항목
+# ============================================
+k8s_service_checks:
+  - id: SVC-001
+    name: "Deployment 상태"
+    description: "모든 Deployment Ready 상태"
+    command: "kubectl get deployments --all-namespaces --no-headers 2>/dev/null | awk '{split($3,a,\"/\"); if(a[1]!=a[2]) print $2\":\"$3}'"
+    check_type: "replica_match"
+    severity: "high"
+    
+  - id: SVC-002
+    name: "StatefulSet 상태"
+    description: "모든 StatefulSet Ready 상태"
+    command: "kubectl get statefulsets --all-namespaces --no-headers 2>/dev/null | awk '{split($3,a,\"/\"); if(a[1]!=a[2]) print $2\":\"$3}'"
+    check_type: "replica_match"
+    severity: "high"
+    
+  - id: SVC-003
+    name: "DaemonSet 상태"
+    description: "모든 DaemonSet Ready 상태"
+    command: "kubectl get daemonsets --all-namespaces --no-headers 2>/dev/null | awk '{if($4!=$5) print $2\":\"$4\"/\"$5}'"
+    check_type: "replica_match"
+    severity: "high"
+    
+  - id: SVC-004
+    name: "Service Endpoints"
+    description: "Endpoint 없는 Service 수"
+    command: "kubectl get endpoints --all-namespaces --no-headers 2>/dev/null | awk '$3==\"<none>\"{count++}END{print count+0}'"
+    threshold: 0
+    unit: "개"
+    severity: "medium"
+    
+  - id: SVC-005
+    name: "Ingress 상태"
+    description: "Ingress 리소스 수"
+    command: "kubectl get ingress --all-namespaces --no-headers 2>/dev/null | wc -l"
+    threshold: null
+    unit: "개"
+    severity: "info"
+    
+  - id: SVC-006
+    name: "Pod 재시작 과다"
+    description: "재시작 5회 이상 Pod"
+    command: "kubectl get pods --all-namespaces --no-headers 2>/dev/null | awk '$5>=5{print $2\":\"$5}'"
+    threshold: 0
+    unit: "개"
+    severity: "medium"
+    
+  - id: SVC-007
+    name: "Pending Pod"
+    description: "Pending 상태 Pod 수"
+    command: "kubectl get pods --all-namespaces --field-selector=status.phase=Pending --no-headers 2>/dev/null | wc -l"
+    threshold: 0
+    unit: "개"
+    severity: "high"
+    
+  - id: SVC-008
+    name: "Failed Pod"
+    description: "Failed 상태 Pod 수"
+    command: "kubectl get pods --all-namespaces --field-selector=status.phase=Failed --no-headers 2>/dev/null | wc -l"
+    threshold: 0
+    unit: "개"
+    severity: "critical"
+    
+  - id: SVC-009
+    name: "CronJob 상태"
+    description: "CronJob 개수"
+    command: "kubectl get cronjobs --all-namespaces --no-headers 2>/dev/null | wc -l"
+    threshold: null
+    unit: "개"
+    severity: "info"
+    
+  - id: SVC-010
+    name: "Failed Job"
+    description: "Failed 상태 Job 수"
+    command: "kubectl get jobs --all-namespaces --no-headers 2>/dev/null | awk '$3==0 && $4>0{count++}END{print count+0}'"
+    threshold: 0
+    unit: "개"
+    severity: "medium"
+
+# ============================================
+# CI/CD 서비스 점검 항목
+# ============================================
+cicd_checks:
+  - id: CICD-001
+    name: "Jenkins 서비스"
+    description: "Jenkins 웹 서비스 응답 확인"
+    check_type: "http_status"
+    expected_status: 200
+    severity: "critical"
+    
+  - id: CICD-002
+    name: "GitLab 서비스"
+    description: "GitLab 웹 서비스 응답 확인"
+    check_type: "http_status"
+    expected_status: 200
+    severity: "critical"
+    
+  - id: CICD-003
+    name: "Nexus 서비스"
+    description: "Nexus 웹 서비스 응답 확인"
+    check_type: "http_status"
+    expected_status: 200
+    severity: "critical"
+    
+  - id: CICD-004
+    name: "Docker Registry"
+    description: "Docker Registry 서비스 응답 확인"
+    check_type: "tcp_port"
+    severity: "high"
+
+# ============================================
+# 데이터베이스 점검 항목
+# ============================================
+database_checks:
+  - id: DB-001
+    name: "MySQL 연결"
+    description: "MySQL 서비스 포트 응답 확인"
+    check_type: "tcp_port"
+    port: 3306
+    severity: "critical"
+    
+  - id: DB-002
+    name: "MySQL Replication"
+    description: "MySQL 복제 상태 확인"
+    command: "mysql -e 'SHOW SLAVE STATUS\\G' 2>/dev/null | grep -E 'Slave_IO_Running|Slave_SQL_Running' | awk '{print $2}'"
+    expected: "Yes"
+    severity: "critical"
+
+# ============================================
+# NFS 스토리지 점검 항목
+# ============================================
+storage_checks:
+  - id: STG-001
+    name: "NFS 마운트 상태"
+    description: "NFS 마운트 포인트 확인"
+    command: "df -h | grep nfs | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+    
+  - id: STG-002
+    name: "NFS 서비스 포트"
+    description: "NFS 서비스 포트(2049) 응답 확인"
+    check_type: "tcp_port"
+    port: 2049
+    severity: "critical"
+
+# ============================================
+# K8s 애플리케이션 점검
+# ============================================
+k8s_app_checks:
+  # 1. ArgoCD
+  - id: APP-ARGO-01
+    name: "ArgoCD Server"
+    category: "ArgoCD"
+    description: "ArgoCD 웹 서버 정상 작동 확인"
+    command: "kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+
+  # 2. Harbor
+  - id: APP-HBR-01
+    name: "Harbor Core"
+    category: "Harbor"
+    description: "Harbor Core 서비스 상태"
+    command: "kubectl get pods -n harbor -l app=harbor,component=core --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+  - id: APP-HBR-02
+    name: "Harbor Registry"
+    category: "Harbor"
+    description: "Docker Registry 서비스 상태"
+    command: "kubectl get pods -n harbor -l app=harbor,component=registry --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+
+  # 3. Rook-Ceph (스토리지)
+  - id: APP-CEPH-01
+    name: "Ceph Manager"
+    category: "Storage"
+    description: "Rook Ceph Manager 활성 상태"
+    command: "kubectl get pods -n rook-ceph -l app=rook-ceph-mgr --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+  - id: APP-CEPH-02
+    name: "Ceph OSD 상태"
+    category: "Storage"
+    description: "OSD(디스크) 파드 정상 작동 수"
+    # OSD가 3개라고 가정 (환경에 맞춰 임계치 조정 필요)
+    command: "kubectl get pods -n rook-ceph -l app=rook-ceph-osd --no-headers | grep Running | wc -l"
+    threshold: 3
+    unit: "개"
+    severity: "high"
+
+  # 4. Monitoring (Prometheus/Grafana)
+  - id: APP-MON-01
+    name: "Grafana"
+    category: "Monitoring"
+    description: "Grafana 대시보드 파드 상태"
+    command: "kubectl get pods -n monitoring -l app.kubernetes.io/name=grafana --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "medium"
+
+  # 5. ELK Stack
+  - id: APP-ELK-01
+    name: "Elasticsearch Master"
+    category: "Logging"
+    description: "Elasticsearch 마스터 노드 수"
+    command: "kubectl get pods -n elk -l app=elasticsearch-master --no-headers | grep Running | wc -l"
+    threshold: 3
+    unit: "개"
+    severity: "high"
+
+  # 6. Keycloak
+  - id: APP-KEY-01
+    name: "Keycloak"
+    category: "Auth"
+    description: "Keycloak 인증 서버 상태"
+    command: "kubectl get pods -n keycloak -l app.kubernetes.io/name=keycloak --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"
+
+  # 7. Loki
+  - id: APP-LOKI-01
+    name: "Loki Gateway"
+    category: "Logging"
+    description: "Loki Gateway 서비스 상태"
+    command: "kubectl get pods -n loki -l app.kubernetes.io/component=gateway --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "high"
+  - id: APP-LOKI-02
+    name: "Loki Write/Read"
+    category: "Logging"
+    description: "Loki 읽기/쓰기 노드 상태"
+    command: "kubectl get pods -n loki -l app.kubernetes.io/name=loki --no-headers | grep -E 'write|read' | grep Running | wc -l"
+    threshold: 2
+    unit: "개"
+    severity: "medium"
+
+  # 8. Nexus
+  - id: APP-NEX-01
+    name: "Nexus"
+    category: "CICD"
+    description: "Nexus Repository 상태"
+    command: "kubectl get pods -n nexus -l app.kubernetes.io/name=nexus --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "high"
+
+  # 9. RabbitMQ
+  - id: APP-RABBIT-01
+    name: "RabbitMQ"
+    category: "Middleware"
+    description: "RabbitMQ 메시지 브로커 상태"
+    command: "kubectl get pods -n rabbitmq -l app.kubernetes.io/name=rabbitmq --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "high"
+
+  # 10. SonarQube
+  - id: APP-SONAR-01
+    name: "SonarQube"
+    category: "CICD"
+    description: "SonarQube 서버 상태"
+    command: "kubectl get pods -n sonarqube -l app=sonarqube --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "medium"
+
+  # 11. Traefik
+  - id: APP-TRAEFIK-01
+    name: "Traefik"
+    category: "Ingress"
+    description: "Traefik Ingress Controller 상태"
+    command: "kubectl get pods -n traefik-system -l app.kubernetes.io/name=traefik --no-headers | grep Running | wc -l"
+    threshold: 1
+    unit: "개"
+    severity: "critical"

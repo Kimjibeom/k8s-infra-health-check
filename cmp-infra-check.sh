@@ -1,0 +1,174 @@
+#!/bin/bash
+#
+# CMP 인프라 정기점검 스크립트
+# OS, Kubernetes, K8s 서비스, CI/CD, DB 점검 및 보고서 생성
+#
+
+set -e
+
+# 스크립트 경로 설정
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# main.py가 checker.py와 동일한 파일이라고 가정합니다. 파일명이 다르면 수정해주세요.
+PYTHON_SCRIPT="${SCRIPT_DIR}/scripts/main.py" 
+INVENTORY_FILE="${SCRIPT_DIR}/config/dev-inventory.yaml"
+CHECKS_FILE="${SCRIPT_DIR}/config/check_items.yaml"
+OUTPUT_DIR="${SCRIPT_DIR}/output"
+
+# 색상 정의
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# [수정됨] 의존성 확인 로직 개선
+check_dependencies() {
+    log_info "의존성 확인 중..."
+    
+    # Python 확인
+    if ! command -v python3 &> /dev/null; then
+        log_error "Python3이 설치되어 있지 않습니다."
+        exit 1
+    fi
+    
+    # 패키지명과 import명이 다른 경우 매핑 처리
+    declare -A package_map
+    package_map["pyyaml"]="yaml"
+    package_map["python-docx"]="docx"
+
+    # pip 패키지 확인 및 설치
+    for pkg in "${!package_map[@]}"; do
+        module_name="${package_map[$pkg]}"
+        
+        # 현재 활성화된 python3 환경에서 import 가능 여부 확인
+        if ! python3 -c "import ${module_name}" 2>/dev/null; then
+            log_warning "${pkg} (모듈명: ${module_name}) 패키지가 없습니다. 설치 중..."
+            
+            # python3 -m pip 사용 (가상환경 pip 확실하게 사용)
+            python3 -m pip install ${pkg} --quiet 2>/dev/null || \
+            log_warning "${pkg} 설치 실패. 인터넷 연결이나 권한을 확인하세요."
+        fi
+    done
+    
+    log_success "의존성 확인 완료"
+}
+
+# 설정 파일 확인
+check_config_files() {
+    log_info "설정 파일 확인 중..."
+    
+    if [ ! -f "${INVENTORY_FILE}" ]; then
+        # 파일이 없으면 빈 파일이라도 생성하여 스크립트가 멈추지 않게 처리하거나 경고
+        log_warning "인벤토리 파일을 찾을 수 없습니다: ${INVENTORY_FILE}"
+        log_info "기본 템플릿을 생성합니다..."
+        mkdir -p "$(dirname "${INVENTORY_FILE}")"
+        touch "${INVENTORY_FILE}"
+    fi
+    
+    if [ ! -f "${CHECKS_FILE}" ]; then
+        log_error "점검 항목 파일을 찾을 수 없습니다: ${CHECKS_FILE}"
+        exit 1
+    fi
+    
+    log_success "설정 파일 확인 완료"
+}
+
+# 출력 디렉토리 생성
+setup_output_dir() {
+    mkdir -p "${OUTPUT_DIR}"
+}
+
+# SSH 키 확인
+check_ssh_key() {
+    local ssh_key="${SSH_PRIVATE_KEY_PATH:-$HOME/.ssh/id_rsa}"
+    
+    ssh_key="${ssh_key/#\~/$HOME}"
+    
+    if [ -f "${ssh_key}" ]; then
+        log_success "SSH 키 확인 완료: ${ssh_key}"
+        return
+    fi
+    
+    # 키가 없어도 데모 모드 등에서는 동작해야 하므로 경고만 출력
+    log_info "SSH 키(${ssh_key})가 확인되지 않았습니다. (데모 모드 시 무시 가능)"
+}
+
+# 도움말
+show_help() {
+    cat << EOF
+CMP 인프라 정기점검 보고서 생성기
+
+사용법:
+    $0 [옵션]
+
+옵션:
+    --type, -t <weekly|monthly>    보고서 유형 (기본: weekly)
+    --demo                         데모 모드 (샘플 데이터 사용)
+    --env, -e <dev|stg|prd|all>    점검할 환경 (기본: all)
+    --output-dir, -o <경로>        보고서 출력 디렉토리
+    --json                         JSON 형식 출력
+    --quiet, -q                    최소 출력
+    --help, -h                     도움말 표시
+
+EOF
+}
+
+# 메인 실행
+main() {
+    echo ""
+    echo "================================================================"
+    echo "  🔍 CMP 인프라 정기점검 시스템"
+    echo "  $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "================================================================"
+    echo ""
+    
+    check_dependencies
+    check_config_files
+    setup_output_dir
+    check_ssh_key
+    
+    # Python 스크립트 실행
+    # (주의: scripts/main.py 경로에 앞서 수정한 파이썬 코드가 있어야 합니다)
+    python3 "${PYTHON_SCRIPT}" \
+        --inventory "${INVENTORY_FILE}" \
+        --checks "${CHECKS_FILE}" \
+        --output-dir "${OUTPUT_DIR}" \
+        "$@"
+    
+    local exit_code=$?
+    
+    echo ""
+    if [ $exit_code -eq 0 ]; then
+        log_success "점검 완료: 모든 항목 정상"
+    elif [ $exit_code -eq 1 ]; then
+        log_warning "점검 완료: 경고 항목 발견"
+    else
+        log_error "점검 완료: 위험 항목 발견 또는 실행 오류"
+    fi
+    
+    exit $exit_code
+}
+
+# 인자 처리
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    show_help
+    exit 0
+fi
+
+main "$@"

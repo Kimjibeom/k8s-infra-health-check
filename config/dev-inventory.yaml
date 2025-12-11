@@ -1,0 +1,83 @@
+# CMP 인프라 인벤토리 설정
+
+# ============================================
+# 개발 클러스터 (DEV)
+# ============================================
+dev_cluster:
+  name: "개발 클러스터"
+  env: "DEV"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "ssg-master01"
+      ip: "172.30.31.111"
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "ssg-master02"
+      ip: "172.30.31.112"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "ssg-master03"
+      ip: "172.30.31.113"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "ssg-worker01"
+      ip: "172.30.31.121"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "ssg-worker02"
+      ip: "172.30.31.122"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "ssg-worker03"
+      ip: "172.30.31.123"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "rocky9-test12"
+    ip: "172.30.31.14"
+    ssh_port: 22
+        
+          
+  namespaces:
+    - "databases"
+    - "default"
+    - "kube-system"
+    - "metallb-system"
+    - "rook-ceph"
+    - "traefik-system"
+    
+  k8s_api_port: 443
+
+
+# ============================================
+# SSH 접속 설정 (보안)
+# ============================================
+ssh_config:
+  # SSH 키 파일 경로 (상대 또는 절대 경로)
+  private_key_path: "~/.ssh/id_rsa"
+  
+  # SSH 사용자
+  default_user: "ansible"
+  
+  # SSH 연결 타임아웃 (초)
+  connect_timeout: 10
+  
+  # 명령 실행 타임아웃 (초)
+  command_timeout: 30
+
+
+# ============================================
+# 보고서 설정
+# ============================================
+report:
+  company_name: "CMP 인프라"
+  team_name: "플랫폼팀"
+  output_dir: "./output"
