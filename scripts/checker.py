@@ -694,6 +694,56 @@ class CMPInfraChecker:
         return results
 
     # ==========================================
+    #  PVC 점검  
+    # ==========================================
+    def check_storage_details(self, cluster_key: str) -> List[CheckResult]:
+        results = []
+        cluster = self.executor.get_cluster_info(cluster_key)
+        if not cluster: return results
+        
+        env_name = cluster.get('env', cluster_key.upper())
+        storage_checks = self.checks_config.get('storage_detail_checks', [])
+        
+        for check in storage_checks:
+            if self.demo_mode:
+                value = "default/data-pvc-0 : Bound (10Gi)\nmonitoring/prom-pvc : Bound (50Gi)"
+                status = CheckStatus.OK
+                message = "PVC 목록 확인"
+            else:
+                conn_result = self.executor.execute_local(check['command'])
+                
+                if conn_result.success:
+                    raw_value = conn_result.stdout.strip()
+                    if raw_value:
+                        value = raw_value
+                        status = CheckStatus.OK
+                        message = "스토리지 할당 현황"
+                    else:
+                        value = "없음"
+                        status = CheckStatus.OK
+                        message = "PVC 없음"
+                else:
+                    value = "N/A"
+                    status = CheckStatus.UNKNOWN
+                    message = conn_result.error_message or "조회 실패"
+            
+            results.append(CheckResult(
+                check_id=check['id'],
+                name=check['name'],
+                category="Storage Detail",
+                subcategory=env_name,
+                description=check['description'],
+                status=status,
+                value=value,
+                threshold=None,
+                unit="",
+                message=message,
+                target=f"{env_name} Cluster",
+                severity=check.get('severity', 'info')
+            ))
+        return results
+
+    # ==========================================
     # 전체 점검 실행 (로직 흐름 제어)
     # ==========================================
     def run_all_checks(self) -> List[CheckResult]:
@@ -751,6 +801,7 @@ class CMPInfraChecker:
             self.results.extend(self.check_k8s_apps(cluster_key))
             self.results.extend(self.check_databases(cluster_key))
             self.results.extend(self.check_sw_versions(cluster_key))
+            self.results.extend(self.check_storage_details(cluster_key))
             
         return self.results
     
