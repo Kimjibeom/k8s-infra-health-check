@@ -559,6 +559,141 @@ class CMPInfraChecker:
         return results
 
     # ==========================================
+    # 인증서 점검 
+    # ==========================================
+    def check_ssl_certs(self) -> List[CheckResult]:
+        results = []
+        # inventory.yaml에 ssl_domains 섹션이 있다고 가정하거나, 하드코딩된 리스트 사용
+        target_domains = [
+            "google.com", 
+            "example.com"
+        ]
+        
+        ssl_checks = self.checks_config.get('ssl_checks', [])
+        if not ssl_checks: return results
+
+        for domain in target_domains:
+            for check in ssl_checks:
+                cmd = check['command'].replace('{domain}', domain)
+                
+                if self.demo_mode:
+                    value = "Mar 15 12:00:00 2026 GMT"
+                    status = CheckStatus.OK
+                    message = "유효 기간 넉넉함"
+                else:
+                    conn_result = self.executor.execute_local(cmd)
+                    
+                    if conn_result.success:
+                        value = conn_result.stdout.strip()
+                        try:
+                            expire_date = datetime.strptime(value, '%b %d %H:%M:%S %Y %Z')
+                            days_left = (expire_date - datetime.now()).days
+                            
+                            if days_left < 30:
+                                status = CheckStatus.CRITICAL
+                                message = f"만료 임박 ({days_left}일 남음)"
+                            elif days_left < 60:
+                                status = CheckStatus.WARNING
+                                message = f"갱신 필요 ({days_left}일 남음)"
+                            else:
+                                status = CheckStatus.OK
+                                message = f"정상 ({days_left}일 남음)"
+                        except Exception:
+                            status = CheckStatus.WARNING
+                            message = "날짜 파싱 실패"
+                    else:
+                        value = "N/A"
+                        status = CheckStatus.UNKNOWN
+                        message = "연결 실패"
+
+                results.append(CheckResult(
+                    check_id=f"{check['id']}-{domain}",
+                    name=f"{domain} SSL",
+                    category="SSL",
+                    subcategory="인증서",
+                    description=check['description'],
+                    status=status,
+                    value=value,
+                    threshold=None,
+                    unit="",
+                    message=message,
+                    target=domain,
+                    severity=check.get('severity', 'high')
+                ))
+        return results
+
+    # ==========================================
+    # 버전 점검  
+    # ==========================================
+    def check_sw_versions(self, cluster_key: str) -> List[CheckResult]:
+        results = []
+        cluster = self.executor.get_cluster_info(cluster_key)
+        if not cluster: return results
+        env_name = cluster.get('env', cluster_key.upper())
+        
+        sw_checks = self.checks_config.get('sw_version_checks', [])
+        
+        # 1. OS 레벨 점검 (모든 마스터/워커 노드에서 실행하거나, 대표 노드 하나에서만 실행)
+        masters = cluster.get('masters', [])
+        target_node = masters[0] if masters else None
+        
+        if target_node:
+            for check in sw_checks:
+                if "kubectl" in check['command']: continue # kubectl 명령은 아래에서 별도 처리
+                
+                hostname = target_node.get('hostname')
+                ip = target_node.get('ip')
+                
+                if self.demo_mode:
+                    value = "v1.28.0"
+                    status = CheckStatus.OK
+                else:
+                    res = self.executor.execute_ssh(hostname, ip, check['command'], target_node.get('port', 22))
+                    value = res.stdout.strip() if res.success else "확인 불가"
+                    status = CheckStatus.OK if res.success else CheckStatus.UNKNOWN
+
+                results.append(CheckResult(
+                    check_id=check['id'],
+                    name=check['name'],
+                    category="SW Version",
+                    subcategory=env_name,
+                    description=check['description'],
+                    status=status,
+                    value=value,
+                    threshold=None, unit="", message="버전 정보",
+                    target=hostname, severity=check['severity']
+                ))
+
+        # 2. 클러스터 레벨 점검 (Pod 이미지 등 - kubectl 사용)
+        for check in sw_checks:
+            if "kubectl" not in check['command']: continue
+            
+            if self.demo_mode:
+                value = "nginx:1.19\nredis:6.0\n..."
+                count = 50
+            else:
+                res = self.executor.execute_local(check['command'])
+                raw_value = res.stdout.strip()
+                lines = raw_value.split('\n')
+                count = len(lines)
+                value = f"총 {count}개 이미지 (상세 생략)" 
+
+            results.append(CheckResult(
+                check_id=check['id'],
+                name=check['name'],
+                category="SW Version",
+                subcategory=env_name,
+                description=check['description'],
+                status=CheckStatus.OK,
+                value=value, # 전체 리스트 대신 요약본 출력
+                threshold=None, unit="개", 
+                message=f"이미지 {count}개 추출 완료",
+                target=f"{env_name} Cluster", severity=check['severity']
+            ))
+            
+        return results
+
+    # ==========================================
     # 전체 점검 실행 (로직 흐름 제어)
     # ==========================================
     def run_all_checks(self) -> List[CheckResult]:
@@ -579,6 +714,9 @@ class CMPInfraChecker:
         else:
             print("📋 CI/CD 서비스 점검 중...")
             self.results.extend(self.check_cicd_services())
+
+        print("📋 SSL 인증서 점검 중...")
+        self.results.extend(self.check_ssl_certs())
         
         # 2. 클러스터 환경별 점검
         environments = [
@@ -612,7 +750,8 @@ class CMPInfraChecker:
             self.results.extend(self.check_k8s_services(cluster_key))
             self.results.extend(self.check_k8s_apps(cluster_key))
             self.results.extend(self.check_databases(cluster_key))
-        
+            self.results.extend(self.check_sw_versions(cluster_key))
+            
         return self.results
     
     def get_summary(self) -> Dict[str, Any]:
