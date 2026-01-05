@@ -436,3 +436,45 @@ k8s_app_checks:
     threshold: 1
     unit: "개"
     severity: "critical"
+
+    # ============================================
+# 스토리지 상세 사용 현황 (PVC)
+# ============================================
+storage_detail_checks:
+  - id: STG-DTL-01
+    name: "PVC 목록 및 상태"
+    description: "전체 PVC의 바인딩 상태 및 용량 확인"
+    command: "kubectl get pvc -A --no-headers 2>/dev/null | awk '{print $1\"/\"$2\" : \"$5\" (\"$6\")\"}'"
+    severity: "info"
+
+# ============================================
+# SSL 인증서 만료 점검
+# ============================================
+ssl_checks:
+  - id: SSL-001
+    name: "도메인 SSL 만료일"
+    description: "주요 도메인의 인증서 만료일자 확인"
+    command: "echo | openssl s_client -servername {domain} -connect {domain}:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2"
+    severity: "high"
+
+# ============================================
+# 오픈소스 SW 및 버전 현황
+# ============================================
+sw_version_checks:
+  - id: SW-VER-01
+    name: "Kubernetes 버전"
+    description: "Kubelet 버전 확인 (Node 레벨)"
+    command: "kubelet --version | awk '{print $2}'"
+    severity: "info"
+
+  - id: SW-VER-02
+    name: "Containerd 버전"
+    description: "Containerd 런타임 버전 확인"
+    command: "containerd --version | awk '{print $3}'"
+    severity: "info"
+
+  - id: SW-VER-03
+    name: "전체 Pod 이미지 현황"
+    description: "클러스터 내 구동 중인 모든 Pod의 이미지 태그 추출"
+    command: "kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}: {.spec.containers[*].image}{\"\\n\"}{end}'"
+    severity: "info"
