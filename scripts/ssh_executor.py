@@ -21,7 +21,7 @@ class SSHConfig:
     host: str
     ip: str
     port: int = 22
-    user: str = "ansible"
+    user: str = "root"
     private_key_path: str = "~/.ssh/id_rsa"
     connect_timeout: int = 10
     command_timeout: int = 10
@@ -73,7 +73,7 @@ class RemoteExecutor:
         """SSH 설정 가져오기"""
         ssh_conf = self.inventory.get('ssh_config', {})
         return {
-            'user': os.environ.get('SSH_USER', ssh_conf.get('default_user', 'ansible')),
+            'user': os.environ.get('SSH_USER', ssh_conf.get('default_user', 'root')),
             'private_key_path': os.environ.get('SSH_PRIVATE_KEY_PATH', 
                                               ssh_conf.get('private_key_path', '~/.ssh/id_rsa')),
             'connect_timeout': ssh_conf.get('connect_timeout', 10),
