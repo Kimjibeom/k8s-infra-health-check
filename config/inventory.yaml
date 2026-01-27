@@ -337,5 +337,5 @@ notifications:
 # ============================================
 report:
   company_name: "CMP 인프라"
-  team_name: "플랫폼팀"
+  team_name: "클라우드서비스팀"
   output_dir: "./output"
