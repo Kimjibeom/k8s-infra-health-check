@@ -112,20 +112,6 @@ k8s_cluster_checks:
     severity: "critical"
     
   - id: K8S-005
-    name: "PV 상태"
-    description: "PersistentVolume 바인딩 상태"
-    command: "kubectl get pv --no-headers 2>/dev/null | awk '{print $1\":\"$5}'"
-    expected: "Bound"
-    severity: "high"
-    
-  - id: K8S-006
-    name: "PVC 상태"
-    description: "PersistentVolumeClaim 바인딩 상태"
-    command: "kubectl get pvc --all-namespaces --no-headers 2>/dev/null | awk '{print $2\":\"$3}'"
-    expected: "Bound"
-    severity: "high"
-    
-  - id: K8S-007
     name: "Warning 이벤트"
     description: "최근 Warning 이벤트 수"
     command: "kubectl get events --all-namespaces --field-selector type=Warning 2>/dev/null | tail -n +2 | wc -l"
@@ -133,7 +119,7 @@ k8s_cluster_checks:
     unit: "개"
     severity: "medium"
     
-  - id: K8S-008
+  - id: K8S-006
     name: "NotReady 노드"
     description: "NotReady 상태 노드 수"
     command: "kubectl get nodes 2>/dev/null | grep -c NotReady || echo '0'"
@@ -141,7 +127,7 @@ k8s_cluster_checks:
     unit: "개"
     severity: "critical"
     
-  - id: K8S-009
+  - id: K8S-007
     name: "클러스터 버전"
     description: "Kubernetes 클러스터 버전"
     command: "kubectl version --short 2>/dev/null | grep Server | awk '{print $3}' || kubectl version 2>/dev/null | grep 'Server Version' | awk '{print $3}'"
@@ -330,26 +316,7 @@ k8s_app_checks:
     unit: "개"
     severity: "critical"
 
-  # 3. Rook-Ceph (스토리지)
-  - id: APP-CEPH-01
-    name: "Ceph Manager"
-    category: "Storage"
-    description: "Rook Ceph Manager 활성 상태"
-    command: "kubectl get pods -n rook-ceph -l app=rook-ceph-mgr --no-headers | grep Running | wc -l"
-    threshold: 1
-    unit: "개"
-    severity: "critical"
-  - id: APP-CEPH-02
-    name: "Ceph OSD 상태"
-    category: "Storage"
-    description: "OSD(디스크) 파드 정상 작동 수"
-    # OSD가 3개라고 가정 (환경에 맞춰 임계치 조정 필요)
-    command: "kubectl get pods -n rook-ceph -l app=rook-ceph-osd --no-headers | grep Running | wc -l"
-    threshold: 3
-    unit: "개"
-    severity: "high"
-
-  # 4. Monitoring (Prometheus/Grafana)
+  # 3. Monitoring (Prometheus/Grafana)
   - id: APP-MON-01
     name: "Grafana"
     category: "Monitoring"
@@ -359,7 +326,7 @@ k8s_app_checks:
     unit: "개"
     severity: "medium"
 
-  # 5. ELK Stack
+  # 4. ELK Stack
   - id: APP-ELK-01
     name: "Elasticsearch Master"
     category: "Logging"
@@ -369,7 +336,7 @@ k8s_app_checks:
     unit: "개"
     severity: "high"
 
-  # 6. Keycloak
+  # 5. Keycloak
   - id: APP-KEY-01
     name: "Keycloak"
     category: "Auth"
@@ -379,7 +346,7 @@ k8s_app_checks:
     unit: "개"
     severity: "critical"
 
-  # 7. Loki
+  # 6. Loki
   - id: APP-LOKI-01
     name: "Loki Gateway"
     category: "Logging"
@@ -397,17 +364,7 @@ k8s_app_checks:
     unit: "개"
     severity: "medium"
 
-  # 8. Nexus
-  - id: APP-NEX-01
-    name: "Nexus"
-    category: "CICD"
-    description: "Nexus Repository 상태"
-    command: "kubectl get pods -n nexus -l app.kubernetes.io/name=nexus --no-headers | grep Running | wc -l"
-    threshold: 1
-    unit: "개"
-    severity: "high"
-
-  # 9. RabbitMQ
+  # 7. RabbitMQ
   - id: APP-RABBIT-01
     name: "RabbitMQ"
     category: "Middleware"
@@ -417,7 +374,7 @@ k8s_app_checks:
     unit: "개"
     severity: "high"
 
-  # 10. SonarQube
+  # 8. SonarQube
   - id: APP-SONAR-01
     name: "SonarQube"
     category: "CICD"
@@ -427,7 +384,7 @@ k8s_app_checks:
     unit: "개"
     severity: "medium"
 
-  # 11. Traefik
+  # 9. Traefik
   - id: APP-TRAEFIK-01
     name: "Traefik"
     category: "Ingress"
@@ -436,16 +393,6 @@ k8s_app_checks:
     threshold: 1
     unit: "개"
     severity: "critical"
-
-    # ============================================
-# 스토리지 상세 사용 현황 (PVC)
-# ============================================
-storage_detail_checks:
-  - id: STG-DTL-01
-    name: "PVC 목록 및 상태"
-    description: "전체 PVC의 바인딩 상태 및 용량 확인"
-    command: "kubectl get pvc -A --no-headers 2>/dev/null | awk '{print $1\"/\"$2\" : \"$5\" (\"$6\")\"}'"
-    severity: "info"
 
 # ============================================
 # SSL 인증서 만료 점검
