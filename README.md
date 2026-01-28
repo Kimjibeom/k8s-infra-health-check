@@ -421,26 +421,6 @@ chmod 700 logs/
 
 ---
 
-## 📝 종료 코드
-
-| 코드 | 의미 |
-| --- | --- |
-| 0 | 모든 항목 정상 |
-| 1 | 경고 항목 있음 |
-| 2 | 위험 항목 있음 |
-
----
-
-## 🤝 기여
-
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open Pull Request
-
----
-
 ## 📄 라이선스
 
 MIT License
