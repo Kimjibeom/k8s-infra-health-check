@@ -1,3 +1,4 @@
+
 # 🔍 CMP 인프라 정기점검 시스템
 
 **CMP (Cloud Management Platform) 인프라 자동화 점검 도구**
@@ -74,47 +75,70 @@
 
 ## 📋 점검 항목
 
-### 🖥️ OS 점검 (10개)
-| ID | 항목 | 임계치 |
-|----|------|--------|
-| OS-001 | 디스크 사용량 | 80% |
-| OS-002 | 메모리 사용량 | 85% |
-| OS-003 | CPU 사용량 | 90% |
-| OS-004 | 시스템 업타임 | - |
-| OS-005 | 좀비 프로세스 | 0 |
-| OS-006 | 로드 애버리지 | 8.0 |
-| OS-007 | Swap 사용량 | 50% |
-| OS-008 | 열린 파일 수 | 100,000 |
-| OS-009 | 네트워크 연결 | 2,000 |
-| OS-010 | 커널 버전 | - |
+### 🖥️ OS 점검 (9개)
+| ID | 항목 | 임계치 | 비고 |
+|----|------|--------|------|
+| OS-001 | 디스크 사용량 | 80% | Root 파티션 |
+| OS-002 | 메모리 사용량 | 85% | |
+| OS-003 | CPU 사용량 | 90% | |
+| OS-004 | 시스템 업타임 | - | |
+| OS-005 | 좀비 프로세스 | 0개 | |
+| OS-006 | 로드 애버리지 | 8.0 | 1분 평균 |
+| OS-007 | 열린 파일 수 | 100,000 | fs.file-nr |
+| OS-008 | 네트워크 연결 | 2,000 | Established |
+| OS-009 | 커널 버전 | - | |
 
-### ☸️ Kubernetes 클러스터 점검 (10개)
-| ID | 항목 | 기준 |
-|----|------|------|
-| K8S-001 | 노드 상태 | Ready |
-| K8S-002 | 노드 CPU | 80% |
-| K8S-003 | 노드 메모리 | 80% |
-| K8S-004 | Control Plane Pod | Running |
-| K8S-005 | etcd 상태 | Running |
-| K8S-006 | PV 상태 | Bound |
-| K8S-007 | PVC 상태 | Bound |
-| K8S-008 | Warning 이벤트 | 50개 |
-| K8S-009 | NotReady 노드 | 0 |
-| K8S-010 | 클러스터 버전 | - |
+### ☸️ Kubernetes 클러스터 점검 (7개)
+| ID | 항목 | 기준 | 비고 |
+|----|------|------|------|
+| K8S-001 | 노드 상태 | Ready | |
+| K8S-002 | 노드 CPU | 80% | |
+| K8S-003 | 노드 메모리 | 80% | |
+| K8S-004 | CP Pod 상태 | Running | kube-system |
+| K8S-005 | Warning 이벤트 | 50개 | 최근 1시간 |
+| K8S-006 | NotReady 노드 | 0개 | |
+| K8S-007 | 클러스터 버전 | - | |
 
-### 🚀 K8s 서비스 점검 (10개)
-| ID | 항목 | 기준 |
-|----|------|------|
-| SVC-001 | Deployment | Replica 일치 |
-| SVC-002 | StatefulSet | Replica 일치 |
-| SVC-003 | DaemonSet | Replica 일치 |
-| SVC-004 | Service Endpoints | 0 |
-| SVC-005 | Ingress | - |
-| SVC-006 | Pod 재시작 과다 (15회+) | 0 |
-| SVC-007 | Pending Pod | 0 |
-| SVC-008 | Failed Pod | 0 |
-| SVC-009 | CronJob | - |
-| SVC-010 | Failed Job | 0 |
+### 🚀 K8s 서비스/워크로드 점검 (10개)
+| ID | 항목 | 기준 | 비고 |
+|----|------|------|------|
+| SVC-001 | Deployment | Replica 일치 | |
+| SVC-002 | StatefulSet | Replica 일치 | |
+| SVC-003 | DaemonSet | Replica 일치 | |
+| SVC-004 | Service Endpoints | 연결됨 | |
+| SVC-005 | Ingress 상태 | - | 개수 확인 |
+| SVC-006 | Pod 재시작 과다 | 15회 미만 | |
+| SVC-007 | Pending Pod | 0개 | |
+| SVC-008 | Failed Pod | 0개 | |
+| SVC-009 | CronJob 상태 | - | 개수 확인 |
+| SVC-010 | Failed Job | 0개 | |
+
+### 🔧 인프라 서비스 점검 (CI/CD, DB, Storage)
+| 카테고리 | ID | 항목 | 점검 방식 | 기준 |
+|----------|----|------|-----------|------|
+| **CI/CD** | CICD-001 | Jenkins | HTTP | 200 OK |
+| | CICD-002 | GitLab | HTTP | 200 OK |
+| | CICD-003 | Nexus | HTTP | 200 OK |
+| | CICD-004 | Registry | TCP | Port Open |
+| **DB** | DB-001 | MySQL 연결 | TCP | 3306 Open |
+| | DB-002 | Replication | Query | Slave Running |
+| **Storage**| STG-001 | NFS 마운트 | OS Command | 마운트 확인 |
+| | STG-002 | NFS 포트 | TCP | 2049 Open |
+
+### 📱 K8s 애플리케이션 점검
+| 카테고리 | ID | 항목 | 기준 (Pod 수) |
+|----------|----|------|---------------|
+| **ArgoCD** | APP-ARGO-01 | ArgoCD Server | 1개 이상 |
+| **Harbor** | APP-HBR-01 | Harbor Core | 1개 이상 |
+| | APP-HBR-02 | Harbor Registry | 1개 이상 |
+| **Monitoring** | APP-MON-01 | Grafana | 1개 이상 |
+| **Logging** | APP-ELK-01 | Elasticsearch | 3개 이상 (Master) |
+| | APP-LOKI-01 | Loki Gateway | 1개 이상 |
+| | APP-LOKI-02 | Loki R/W | 2개 이상 |
+| **Auth** | APP-KEY-01 | Keycloak | 1개 이상 |
+| **Middleware** | APP-RABBIT-01 | RabbitMQ | 1개 이상 |
+| **CICD** | APP-SONAR-01 | SonarQube | 1개 이상 |
+| **Ingress** | APP-TRAEFIK-01 | Traefik | 1개 이상 |
 
 ---
 
