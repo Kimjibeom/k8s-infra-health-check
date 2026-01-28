@@ -47,13 +47,11 @@ class CMPInfraChecker:
     
     def __init__(self, 
                  inventory_path: str = "config/dev-inventory.yaml",
-                 checks_path: str = "config/check_items.yaml",
-                 demo_mode: bool = False):
+                 checks_path: str = "config/check_items.yaml"):
         
         self.inventory_path = inventory_path
         self.checks_config = self._load_config(checks_path)
-        self.executor = get_executor(demo_mode=demo_mode, inventory_path=inventory_path)
-        self.demo_mode = demo_mode
+        self.executor = get_executor(inventory_path=inventory_path)
         self.results: List[CheckResult] = []
         
     def _load_config(self, path: str) -> dict:
@@ -136,10 +134,7 @@ class CMPInfraChecker:
             category = server.get('category', 'OS')
             
             for check in os_checks:
-                if self.demo_mode:
-                    result = self._run_demo_os_check(check, server_name, category, env_name)
-                else:
-                    result = self._run_os_check(check, hostname, ip, port, 
+                 result = self._run_os_check(check, hostname, ip, port, 
                                                 server_name, category, env_name)
                 results.append(result)
         return results
@@ -188,28 +183,6 @@ class CMPInfraChecker:
             target=server_name,
             severity=check.get('severity', 'medium')
         )
-    
-    def _run_demo_os_check(self, check: dict, server_name: str, 
-                           category: str, env_name: str) -> CheckResult:
-        demo_values = {
-            'OS-001': ('45', CheckStatus.OK, '정상 범위'),
-            'OS-002': ('62.5', CheckStatus.OK, '정상 범위'),
-            'OS-003': ('23', CheckStatus.OK, '정상 범위'),
-            'OS-004': ('up 15 days, 4 hours', CheckStatus.OK, '정상 가동 중'),
-            'OS-005': ('0', CheckStatus.OK, '좀비 프로세스 없음'),
-            'OS-006': ('1.25', CheckStatus.OK, '정상 범위'),
-            'OS-007': ('3456', CheckStatus.OK, '정상 범위'),
-            'OS-008': ('128', CheckStatus.OK, '정상 범위'),
-            'OS-009': ('5.15.0-91-generic', CheckStatus.OK, '커널 정보 확인'),
-        }
-        check_id = check['id']
-        value, status, message = demo_values.get(check_id, ('N/A', CheckStatus.UNKNOWN, '데모 데이터 없음'))
-        return CheckResult(
-            check_id=check_id, name=check['name'], category=category, subcategory=env_name,
-            description=check['description'], status=status, value=value,
-            threshold=check.get('threshold'), unit=check.get('unit', ''), message=message,
-            target=server_name, severity=check.get('severity', 'medium')
-        )
 
     # ==========================================
     # Kubernetes 점검 (로컬 실행)
@@ -224,10 +197,7 @@ class CMPInfraChecker:
         
         # 로컬 (Bastion)에서 kubectl 명령 실행
         for check in k8s_checks:
-            if self.demo_mode:
-                result = self._run_demo_k8s_check(check, env_name)
-            else:
-                result = self._run_k8s_check_local(check, env_name)
+            result = self._run_k8s_check_local(check, env_name)
             results.append(result)
         return results
 
@@ -236,7 +206,7 @@ class CMPInfraChecker:
         check_id = check['id']
         conn_result = self.executor.execute_local(check['command'])
         
-        if check_id == 'K8S-008' and conn_result.return_code == 1:
+        if check_id == 'K8S-005' and conn_result.return_code == 1:
             conn_result.success = True
             conn_result.stdout = "0"
 
@@ -268,28 +238,6 @@ class CMPInfraChecker:
             target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
         )
 
-    def _run_demo_k8s_check(self, check: dict, env_name: str) -> CheckResult:
-        demo_values = {
-            'K8S-001': ('Ready', CheckStatus.OK, '모두 정상'),
-            'K8S-002': ('32%', CheckStatus.OK, '정상'),
-            'K8S-003': ('58%', CheckStatus.OK, '정상'),
-            'K8S-004': ('Running', CheckStatus.OK, '정상'),
-            'K8S-005': ('Running', CheckStatus.OK, '정상'),
-            'K8S-006': ('Bound', CheckStatus.OK, '정상'),
-            'K8S-007': ('Bound', CheckStatus.OK, '정상'),
-            'K8S-008': ('5', CheckStatus.OK, '정상'),
-            'K8S-009': ('0', CheckStatus.OK, '정상'),
-            'K8S-010': ('v1.33.5', CheckStatus.OK, '정상'),
-        }
-        check_id = check['id']
-        value, status, message = demo_values.get(check_id, ('N/A', CheckStatus.UNKNOWN, '데모 데이터 없음'))
-        return CheckResult(
-            check_id=check_id, name=check['name'], category="Kubernetes", subcategory=env_name,
-            description=check['description'], status=status, value=value,
-            threshold=check.get('threshold'), unit=check.get('unit', ''), message=message,
-            target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
-        )
-
     def check_k8s_services(self, cluster_key: str) -> List[CheckResult]:
         results = []
         cluster = self.executor.get_cluster_info(cluster_key)
@@ -299,10 +247,7 @@ class CMPInfraChecker:
         svc_checks = self.checks_config.get('k8s_service_checks', [])
         
         for check in svc_checks:
-            if self.demo_mode:
-                result = self._run_demo_svc_check(check, env_name)
-            else:
-                result = self._run_svc_check_local(check, env_name)
+            result = self._run_svc_check_local(check, env_name)
             results.append(result)
         return results
 
@@ -316,24 +261,7 @@ class CMPInfraChecker:
         app_checks = self.checks_config.get('k8s_app_checks', [])
         
         for check in app_checks:
-            if self.demo_mode:
-                result = CheckResult(
-                    check_id=check['id'],
-                    name=check['name'],
-                    category=check.get('category', 'Application'),
-                    subcategory=env_name,
-                    description=check['description'],
-                    status=CheckStatus.OK,
-                    value="1",
-                    threshold=check.get('threshold'),
-                    unit=check.get('unit', ''),
-                    message="정상 작동 (Demo)",
-                    target=f"{env_name} Apps",
-                    severity=check.get('severity', 'medium')
-                )
-            else:
-                result = self._run_k8s_app_check_local(check, env_name)
-            
+            result = self._run_k8s_app_check_local(check, env_name)
             results.append(result)
         return results
 
@@ -435,23 +363,6 @@ class CMPInfraChecker:
             target=f"{env_name} Services", severity=check.get('severity', 'medium')
         )
 
-    def _run_demo_svc_check(self, check: dict, env_name: str) -> CheckResult:
-        demo_values = {
-            'SVC-001': ('', CheckStatus.OK, '모든 Deployment 정상'),
-            'SVC-002': ('', CheckStatus.OK, '모든 StatefulSet 정상'),
-            'SVC-003': ('', CheckStatus.OK, '모든 DaemonSet 정상'),
-            'SVC-004': ('0', CheckStatus.OK, 'Endpoint 없는 Service 없음'),
-            'SVC-005': ('5', CheckStatus.OK, '5개 Ingress 확인'),
-        }
-        check_id = check['id']
-        value, status, message = demo_values.get(check_id, ('N/A', CheckStatus.UNKNOWN, '데모 데이터 없음'))
-        return CheckResult(
-            check_id=check_id, name=check['name'], category="Services", subcategory=env_name,
-            description=check['description'], status=status, value=value,
-            threshold=check.get('threshold'), unit=check.get('unit', ''), message=message,
-            target=f"{env_name} Services", severity=check.get('severity', 'medium')
-        )
-
     # ==========================================
     # CI/CD 서비스 점검
     # ==========================================
@@ -480,27 +391,22 @@ class CMPInfraChecker:
                 svc_name = service.get('name', '')
                 port = service.get('port', 80)
                 
-                if self.demo_mode:
-                    status = CheckStatus.OK
-                    message = "서비스 정상 응답"
-                    value = "200 OK"
-                else:
-                    url = f"http://{ip}:{port}/"
-                    success, status_code = self.executor.check_http_status(url)
+            url = f"http://{ip}:{port}/"
+            success, status_code = self.executor.check_http_status(url)
                     
-                    if success:
-                        status = CheckStatus.OK
-                        message = "서비스 정상 응답"
-                        value = f"{status_code} OK"
-                    else:
-                        if self.executor.check_tcp_port(ip, port):
-                            status = CheckStatus.OK
-                            message = "포트 응답 정상"
-                            value = f"TCP {port} Open"
-                        else:
-                            status = CheckStatus.CRITICAL
-                            message = "서비스 응답 없음"
-                            value = "연결 실패"
+            if success:
+                status = CheckStatus.OK
+                message = "서비스 정상 응답"
+                value = f"{status_code} OK"
+            else:
+                if self.executor.check_tcp_port(ip, port):
+                    status = CheckStatus.OK
+                    message = "포트 응답 정상"
+                    value = f"TCP {port} Open"
+                else:
+                    status = CheckStatus.CRITICAL
+                    message = "서비스 응답 없음"
+                    value = "연결 실패"
                 
                 results.append(CheckResult(
                     check_id=f"CICD-{key.upper()[:3]}",
@@ -533,19 +439,14 @@ class CMPInfraChecker:
                 svc_name = service.get('name', 'MySQL')
                 port = service.get('port', 3306)
                 
-                if self.demo_mode:
+                if self.executor.check_tcp_port(ip, port):
                     status = CheckStatus.OK
                     message = "DB 연결 정상"
                     value = f"TCP {port} Open"
                 else:
-                    if self.executor.check_tcp_port(ip, port):
-                        status = CheckStatus.OK
-                        message = "DB 연결 정상"
-                        value = f"TCP {port} Open"
-                    else:
-                        status = CheckStatus.CRITICAL
-                        message = "DB 연결 실패"
-                        value = "연결 불가"
+                    status = CheckStatus.CRITICAL
+                    message = "DB 연결 실패"
+                    value = "연결 불가"
                 
                 results.append(CheckResult(
                     check_id=f"DB-{env_name[:1]}{db_name[-1:]}",
@@ -576,35 +477,30 @@ class CMPInfraChecker:
             for check in ssl_checks:
                 cmd = check['command'].replace('{domain}', domain)
                 
-                if self.demo_mode:
-                    value = "Mar 15 12:00:00 2026 GMT"
-                    status = CheckStatus.OK
-                    message = "유효 기간 넉넉함"
-                else:
-                    conn_result = self.executor.execute_local(cmd)
+                conn_result = self.executor.execute_local(cmd)
                     
-                    if conn_result.success:
-                        value = conn_result.stdout.strip()
-                        try:
-                            expire_date = datetime.strptime(value, '%b %d %H:%M:%S %Y %Z')
-                            days_left = (expire_date - datetime.now()).days
-                            
-                            if days_left < 30:
-                                status = CheckStatus.CRITICAL
-                                message = f"만료 임박 ({days_left}일 남음)"
-                            elif days_left < 60:
-                                status = CheckStatus.WARNING
-                                message = f"갱신 필요 ({days_left}일 남음)"
-                            else:
-                                status = CheckStatus.OK
-                                message = f"정상 ({days_left}일 남음)"
-                        except Exception:
+                if conn_result.success:
+                    value = conn_result.stdout.strip()
+                    try:
+                        expire_date = datetime.strptime(value, '%b %d %H:%M:%S %Y %Z')
+                        days_left = (expire_date - datetime.now()).days
+                         
+                        if days_left < 30:
+                            status = CheckStatus.CRITICAL
+                            message = f"만료 임박 ({days_left}일 남음)"
+                        elif days_left < 60:
                             status = CheckStatus.WARNING
-                            message = "날짜 파싱 실패"
-                    else:
-                        value = "N/A"
-                        status = CheckStatus.UNKNOWN
-                        message = "연결 실패"
+                            message = f"갱신 필요 ({days_left}일 남음)"
+                        else:
+                            status = CheckStatus.OK
+                            message = f"정상 ({days_left}일 남음)"
+                    except Exception:
+                        status = CheckStatus.WARNING
+                        message = "날짜 파싱 실패"
+                else:
+                    value = "N/A"
+                    status = CheckStatus.UNKNOWN
+                    message = "연결 실패"
 
                 results.append(CheckResult(
                     check_id=f"{check['id']}-{domain}",
@@ -644,13 +540,9 @@ class CMPInfraChecker:
                 hostname = target_node.get('hostname')
                 ip = target_node.get('ip')
                 
-                if self.demo_mode:
-                    value = "v1.28.0"
-                    status = CheckStatus.OK
-                else:
-                    res = self.executor.execute_ssh(hostname, ip, check['command'], target_node.get('port', 22))
-                    value = res.stdout.strip() if res.success else "확인 불가"
-                    status = CheckStatus.OK if res.success else CheckStatus.UNKNOWN
+                res = self.executor.execute_ssh(hostname, ip, check['command'], target_node.get('port', 22))
+                value = res.stdout.strip() if res.success else "확인 불가"
+                status = CheckStatus.OK if res.success else CheckStatus.UNKNOWN
 
                 results.append(CheckResult(
                     check_id=check['id'],
@@ -661,22 +553,18 @@ class CMPInfraChecker:
                     status=status,
                     value=value,
                     threshold=None, unit="", message="버전 정보",
-                    target=hostname, severity=check['severity']
+                    target=hostname, severity=check.get['severity', 'medium']
                 ))
 
         # 2. 클러스터 레벨 점검 (Pod 이미지 등 - kubectl 사용)
         for check in sw_checks:
             if "kubectl" not in check['command']: continue
             
-            if self.demo_mode:
-                value = "nginx:1.19\nredis:6.0\n..."
-                count = 50
-            else:
-                res = self.executor.execute_local(check['command'])
-                raw_value = res.stdout.strip()
-                lines = raw_value.split('\n')
-                count = len(lines)
-                value = f"총 {count}개 이미지 (상세 생략)" 
+            res = self.executor.execute_local(check['command'])
+            raw_value = res.stdout.strip()
+            lines = raw_value.split('\n')
+            count = len(lines)
+            value = f"총 {count}개 이미지 (상세 생략)" 
 
             results.append(CheckResult(
                 check_id=check['id'],
@@ -705,12 +593,7 @@ class CMPInfraChecker:
         storage_checks = self.checks_config.get('storage_detail_checks', [])
         
         for check in storage_checks:
-            if self.demo_mode:
-                value = "default/data-pvc-0 : Bound (10Gi)\nmonitoring/prom-pvc : Bound (50Gi)"
-                status = CheckStatus.OK
-                message = "PVC 목록 확인"
-            else:
-                conn_result = self.executor.execute_local(check['command'])
+            conn_result = self.executor.execute_local(check['command'])
                 
                 if conn_result.success:
                     raw_value = conn_result.stdout.strip()
@@ -862,10 +745,9 @@ class CMPInfraChecker:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--demo', action='store_true')
     args = parser.parse_args()
     
-    checker = CMPInfraChecker(demo_mode=args.demo)
+    checker = CMPInfraChecker()
     checker.run_all_checks()
     summary = checker.get_summary()
     print(summary)

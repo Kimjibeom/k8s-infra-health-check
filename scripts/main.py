@@ -5,7 +5,6 @@ OS, Kubernetes, K8s 서비스, CI/CD, DB 점검 및 보고서 생성
 
 사용법:
     python main.py                      # 기본 실행
-    python main.py --demo               # 데모 모드 (샘플 데이터)
     python main.py --type monthly       # 월간 보고서
     python main.py --env dev            # 특정 환경만 점검
 """
@@ -46,7 +45,7 @@ def create_report_config(inventory: dict, report_type: str, output_dir: str = No
     return ReportConfig(
         report_type=report_type or report_conf.get('type', 'weekly'),
         company_name=report_conf.get('company_name', 'CMP 인프라'),
-        team_name=report_conf.get('team_name', '플랫폼팀'),
+        team_name=report_conf.get('team_name', '클라우드서비스팀'),
         output_dir=output_dir or report_conf.get('output_dir', './output')
     )
 
@@ -65,7 +64,6 @@ def main():
     parser.add_argument('--output-dir', '-o', help='보고서 출력 디렉토리')
     parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'all'], 
         default='all', help='점검할 환경 (기본: all)')
-    parser.add_argument('--demo', action='store_true', help='데모 모드 (샘플 데이터 사용)')
     parser.add_argument('--json', action='store_true', help='JSON 형식 출력')
     parser.add_argument('--quiet', '-q', action='store_true', help='최소 출력')
     
@@ -87,8 +85,6 @@ def main():
     if not args.quiet:
         print("=" * 70)
         print("🔍 CMP 인프라 정기점검 시작")
-        if args.demo:
-            print("   ⚠️  데모 모드 - 샘플 데이터 사용")
         print(f"   보고서 유형: {report_config.report_type}")
         print(f"   회사: {report_config.company_name}")
         print(f"   담당팀: {report_config.team_name}")
@@ -97,8 +93,7 @@ def main():
     
     checker = CMPInfraChecker(
         inventory_path=args.inventory,
-        checks_path=args.checks,
-        demo_mode=args.demo
+        checks_path=args.checks
     )
     
     results = checker.run_all_checks()
@@ -119,8 +114,7 @@ def main():
         output = {
             'summary': summary,
             'results': results_dict,
-            'timestamp': datetime.now().isoformat(),
-            'demo_mode': args.demo
+            'timestamp': datetime.now().isoformat()
         }
         print(json.dumps(output, ensure_ascii=False, indent=2))
         return
