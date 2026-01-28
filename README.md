@@ -151,11 +151,10 @@ cmp-infra-check/
 │
 ├── 📄 cmp-infra-check.sh       # 메인 실행 스크립트
 ├── 📄 README.md                # 프로젝트 문서
-├── 📄 .gitignore               # Git 제외 파일
 │
-├── 📁 config/                  # 설정 파일 (보안 주의!)
-│   ├── 📄 inventory.yaml       # 🔒 IP/Port 정보 (gitignore 권장)
-│   ├── 📄 inventory.yaml.example  # 인벤토리 예시
+├── 📁 config/                  # 설정 파일
+│   ├── 📄 inventory.yaml       # 🔒 IP/Port 정보
+│   ├── 📄 dev-inventory.yaml   # Dev 클러스터 정보
 │   └── 📄 check_items.yaml     # 점검 항목 정의
 │
 ├── 📁 scripts/                 # Python 스크립트
@@ -164,11 +163,7 @@ cmp-infra-check/
 │   ├── 📄 ssh_executor.py      # SSH 연결 모듈
 │   └── 📄 report_generator.py  # 보고서 생성
 │
-├── 📁 output/                  # 보고서 출력
-│   └── 📄 .gitkeep
-│
-└── 📁 logs/                    # 로그 파일
-└── 📄 .gitkeep
+└──  📁 output/                  # 보고서 출력
 
 ```
 
