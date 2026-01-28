@@ -134,8 +134,8 @@ class CMPInfraChecker:
             category = server.get('category', 'OS')
             
             for check in os_checks:
-                 result = self._run_os_check(check, hostname, ip, port, 
-                                                server_name, category, env_name)
+                result = self._run_os_check(check, hostname, ip, port, 
+                                               server_name, category, env_name)
                 results.append(result)
         return results
     
@@ -391,22 +391,22 @@ class CMPInfraChecker:
                 svc_name = service.get('name', '')
                 port = service.get('port', 80)
                 
-            url = f"http://{ip}:{port}/"
-            success, status_code = self.executor.check_http_status(url)
+                url = f"http://{ip}:{port}/"
+                success, status_code = self.executor.check_http_status(url)
                     
-            if success:
-                status = CheckStatus.OK
-                message = "서비스 정상 응답"
-                value = f"{status_code} OK"
-            else:
-                if self.executor.check_tcp_port(ip, port):
+                if success:
                     status = CheckStatus.OK
-                    message = "포트 응답 정상"
-                    value = f"TCP {port} Open"
+                    message = "서비스 정상 응답"
+                    value = f"{status_code} OK"
                 else:
-                    status = CheckStatus.CRITICAL
-                    message = "서비스 응답 없음"
-                    value = "연결 실패"
+                    if self.executor.check_tcp_port(ip, port):
+                        status = CheckStatus.OK
+                        message = "포트 응답 정상"
+                        value = f"TCP {port} Open"
+                    else:
+                        status = CheckStatus.CRITICAL
+                        message = "서비스 응답 없음"
+                        value = "연결 실패"
                 
                 results.append(CheckResult(
                     check_id=f"CICD-{key.upper()[:3]}",
@@ -484,7 +484,7 @@ class CMPInfraChecker:
                     try:
                         expire_date = datetime.strptime(value, '%b %d %H:%M:%S %Y %Z')
                         days_left = (expire_date - datetime.now()).days
-                         
+                        
                         if days_left < 30:
                             status = CheckStatus.CRITICAL
                             message = f"만료 임박 ({days_left}일 남음)"
@@ -553,7 +553,7 @@ class CMPInfraChecker:
                     status=status,
                     value=value,
                     threshold=None, unit="", message="버전 정보",
-                    target=hostname, severity=check.get['severity', 'medium']
+                    target=hostname, severity=check.get('severity', 'medium')
                 ))
 
         # 2. 클러스터 레벨 점검 (Pod 이미지 등 - kubectl 사용)
@@ -576,7 +576,7 @@ class CMPInfraChecker:
                 value=value, # 전체 리스트 대신 요약본 출력
                 threshold=None, unit="개", 
                 message=f"이미지 {count}개 추출 완료",
-                target=f"{env_name} Cluster", severity=check['severity']
+                target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
             ))
             
         return results
@@ -594,21 +594,21 @@ class CMPInfraChecker:
         
         for check in storage_checks:
             conn_result = self.executor.execute_local(check['command'])
-                
-                if conn_result.success:
-                    raw_value = conn_result.stdout.strip()
-                    if raw_value:
-                        value = raw_value
-                        status = CheckStatus.OK
-                        message = "스토리지 할당 현황"
-                    else:
-                        value = "없음"
-                        status = CheckStatus.OK
-                        message = "PVC 없음"
+            
+            if conn_result.success:
+                raw_value = conn_result.stdout.strip()
+                if raw_value:
+                    value = raw_value
+                    status = CheckStatus.OK
+                    message = "스토리지 할당 현황"
                 else:
-                    value = "N/A"
-                    status = CheckStatus.UNKNOWN
-                    message = conn_result.error_message or "조회 실패"
+                    value = "없음"
+                    status = CheckStatus.OK
+                    message = "PVC 없음"
+            else:
+                value = "N/A"
+                status = CheckStatus.UNKNOWN
+                message = conn_result.error_message or "조회 실패"
             
             results.append(CheckResult(
                 check_id=check['id'],
