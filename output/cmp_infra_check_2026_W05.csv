@@ -1,123 +1,121 @@
 ﻿# 2026년 5주차 CMP 인프라 정기점검 보고서
-# 생성일시: 2026-01-28 14:28:59
+# 생성일시: 2026-01-28 14:45:38
 # 회사: CMP 인프라
 # 담당팀: 클라우드서비스팀
 # 총 점검항목: 87
-# 정상: 78 / 경고: 3 / 위험: 6 / 확인불가: 0
+# 정상: 80 / 경고: 3 / 위험: 4 / 확인불가: 0
 
 점검ID,점검항목,카테고리,환경,점검대상,설명,상태,측정값,임계치,결과메시지,중요도,점검시간
-SSL-001-google.com,google.com SSL,SSL,인증서,google.com,주요 도메인의 인증서 만료일자 확인,경고,Mar 23 19:51:05 2026 GMT,-,갱신 필요 (54일 남음),high,2026-01-28T14:28:39.186643
-SSL-001-example.com,example.com SSL,SSL,인증서,example.com,주요 도메인의 인증서 만료일자 확인,경고,Mar 16 18:32:44 2026 GMT,-,갱신 필요 (47일 남음),high,2026-01-28T14:28:39.284516
-OS-001,디스크 사용량,DEV Master,DEV,Master #1,루트 파일시스템 디스크 사용률 확인,정상,32,80%,정상 범위,high,2026-01-28T14:28:39.811504
-OS-002,메모리 사용량,DEV Master,DEV,Master #1,시스템 메모리 사용률 확인,정상,25.8,85%,정상 범위,high,2026-01-28T14:28:40.058389
-OS-003,CPU 사용량,DEV Master,DEV,Master #1,CPU 평균 사용률 확인,정상,2,90%,정상 범위,high,2026-01-28T14:28:40.479461
-OS-004,시스템 업타임,DEV Master,DEV,Master #1,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 3 hours, 21 minutes",-,정보 수집 완료,info,2026-01-28T14:28:40.722427
-OS-005,좀비 프로세스,DEV Master,DEV,Master #1,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:40.979124
-OS-006,로드 애버리지,DEV Master,DEV,Master #1,1분 평균 로드 확인,정상,0.34,8.0,정상 범위,medium,2026-01-28T14:28:41.212118
-OS-007,열린 파일 수,DEV Master,DEV,Master #1,시스템 전체 열린 파일 디스크립터 수,정상,2720,100000개,정상 범위,low,2026-01-28T14:28:41.460579
-OS-008,네트워크 연결,DEV Master,DEV,Master #1,ESTABLISHED 상태 TCP 연결 수,정상,1160,2000개,정상 범위,low,2026-01-28T14:28:41.763493
-OS-009,커널 버전,DEV Master,DEV,Master #1,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:42.018353
-OS-001,디스크 사용량,DEV Master,DEV,Master #2,루트 파일시스템 디스크 사용률 확인,정상,29,80%,정상 범위,high,2026-01-28T14:28:42.453885
-OS-002,메모리 사용량,DEV Master,DEV,Master #2,시스템 메모리 사용률 확인,정상,24.8,85%,정상 범위,high,2026-01-28T14:28:42.694398
-OS-003,CPU 사용량,DEV Master,DEV,Master #2,CPU 평균 사용률 확인,정상,0,90%,정상 범위,high,2026-01-28T14:28:43.086528
-OS-004,시스템 업타임,DEV Master,DEV,Master #2,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 3 hours, 53 minutes",-,정보 수집 완료,info,2026-01-28T14:28:43.321954
-OS-005,좀비 프로세스,DEV Master,DEV,Master #2,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:43.550249
-OS-006,로드 애버리지,DEV Master,DEV,Master #2,1분 평균 로드 확인,정상,0.91,8.0,정상 범위,medium,2026-01-28T14:28:43.763613
-OS-007,열린 파일 수,DEV Master,DEV,Master #2,시스템 전체 열린 파일 디스크립터 수,정상,2592,100000개,정상 범위,low,2026-01-28T14:28:43.986851
-OS-008,네트워크 연결,DEV Master,DEV,Master #2,ESTABLISHED 상태 TCP 연결 수,정상,1165,2000개,정상 범위,low,2026-01-28T14:28:44.266112
-OS-009,커널 버전,DEV Master,DEV,Master #2,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:44.501293
-OS-001,디스크 사용량,DEV Master,DEV,Master #3,루트 파일시스템 디스크 사용률 확인,정상,30,80%,정상 범위,high,2026-01-28T14:28:44.958080
-OS-002,메모리 사용량,DEV Master,DEV,Master #3,시스템 메모리 사용률 확인,정상,25.2,85%,정상 범위,high,2026-01-28T14:28:45.207289
-OS-003,CPU 사용량,DEV Master,DEV,Master #3,CPU 평균 사용률 확인,정상,0,90%,정상 범위,high,2026-01-28T14:28:45.613934
-OS-004,시스템 업타임,DEV Master,DEV,Master #3,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 3 hours, 34 minutes",-,정보 수집 완료,info,2026-01-28T14:28:45.868095
-OS-005,좀비 프로세스,DEV Master,DEV,Master #3,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:46.137265
-OS-006,로드 애버리지,DEV Master,DEV,Master #3,1분 평균 로드 확인,정상,0.46,8.0,정상 범위,medium,2026-01-28T14:28:46.389212
-OS-007,열린 파일 수,DEV Master,DEV,Master #3,시스템 전체 열린 파일 디스크립터 수,정상,2624,100000개,정상 범위,low,2026-01-28T14:28:46.627370
-OS-008,네트워크 연결,DEV Master,DEV,Master #3,ESTABLISHED 상태 TCP 연결 수,정상,1167,2000개,정상 범위,low,2026-01-28T14:28:46.923634
-OS-009,커널 버전,DEV Master,DEV,Master #3,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:47.156349
-OS-001,디스크 사용량,DEV Worker,DEV,Worker #1,루트 파일시스템 디스크 사용률 확인,정상,51,80%,정상 범위,high,2026-01-28T14:28:47.690641
-OS-002,메모리 사용량,DEV Worker,DEV,Worker #1,시스템 메모리 사용률 확인,정상,37.1,85%,정상 범위,high,2026-01-28T14:28:47.947866
-OS-003,CPU 사용량,DEV Worker,DEV,Worker #1,CPU 평균 사용률 확인,정상,1,90%,정상 범위,high,2026-01-28T14:28:48.409768
-OS-004,시스템 업타임,DEV Worker,DEV,Worker #1,시스템 가동 시간 확인,정상,"up 1 week, 1 day, 21 hours, 8 minutes",-,정보 수집 완료,info,2026-01-28T14:28:48.660991
-OS-005,좀비 프로세스,DEV Worker,DEV,Worker #1,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:48.966548
-OS-006,로드 애버리지,DEV Worker,DEV,Worker #1,1분 평균 로드 확인,정상,1.50,8.0,정상 범위,medium,2026-01-28T14:28:49.238991
-OS-007,열린 파일 수,DEV Worker,DEV,Worker #1,시스템 전체 열린 파일 디스크립터 수,정상,13504,100000개,정상 범위,low,2026-01-28T14:28:49.510770
-OS-008,네트워크 연결,DEV Worker,DEV,Worker #1,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:28:49.803309
-OS-009,커널 버전,DEV Worker,DEV,Worker #1,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:50.053279
-OS-001,디스크 사용량,DEV Worker,DEV,Worker #2,루트 파일시스템 디스크 사용률 확인,정상,46,80%,정상 범위,high,2026-01-28T14:28:50.420005
-OS-002,메모리 사용량,DEV Worker,DEV,Worker #2,시스템 메모리 사용률 확인,정상,36.6,85%,정상 범위,high,2026-01-28T14:28:50.768388
-OS-003,CPU 사용량,DEV Worker,DEV,Worker #2,CPU 평균 사용률 확인,정상,1,90%,정상 범위,high,2026-01-28T14:28:51.315434
-OS-004,시스템 업타임,DEV Worker,DEV,Worker #2,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 5 hours, 3 minutes",-,정보 수집 완료,info,2026-01-28T14:28:51.657420
-OS-005,좀비 프로세스,DEV Worker,DEV,Worker #2,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:52.024733
-OS-006,로드 애버리지,DEV Worker,DEV,Worker #2,1분 평균 로드 확인,정상,0.84,8.0,정상 범위,medium,2026-01-28T14:28:52.264460
-OS-007,열린 파일 수,DEV Worker,DEV,Worker #2,시스템 전체 열린 파일 디스크립터 수,정상,4864,100000개,정상 범위,low,2026-01-28T14:28:52.500221
-OS-008,네트워크 연결,DEV Worker,DEV,Worker #2,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:28:52.773378
-OS-009,커널 버전,DEV Worker,DEV,Worker #2,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:53.022041
-OS-001,디스크 사용량,DEV Worker,DEV,Worker #3,루트 파일시스템 디스크 사용률 확인,정상,50,80%,정상 범위,high,2026-01-28T14:28:53.371535
-OS-002,메모리 사용량,DEV Worker,DEV,Worker #3,시스템 메모리 사용률 확인,정상,35.0,85%,정상 범위,high,2026-01-28T14:28:53.728807
-OS-003,CPU 사용량,DEV Worker,DEV,Worker #3,CPU 평균 사용률 확인,정상,2,90%,정상 범위,high,2026-01-28T14:28:54.254714
-OS-004,시스템 업타임,DEV Worker,DEV,Worker #3,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 5 hours, 6 minutes",-,정보 수집 완료,info,2026-01-28T14:28:54.616762
-OS-005,좀비 프로세스,DEV Worker,DEV,Worker #3,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:28:55.032178
-OS-006,로드 애버리지,DEV Worker,DEV,Worker #3,1분 평균 로드 확인,정상,3.62,8.0,정상 범위,medium,2026-01-28T14:28:55.259236
-OS-007,열린 파일 수,DEV Worker,DEV,Worker #3,시스템 전체 열린 파일 디스크립터 수,정상,5088,100000개,정상 범위,low,2026-01-28T14:28:55.490334
-OS-008,네트워크 연결,DEV Worker,DEV,Worker #3,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:28:55.733257
-OS-009,커널 버전,DEV Worker,DEV,Worker #3,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:28:55.958159
+SSL-001-google.com,google.com SSL,SSL,인증서,google.com,주요 도메인의 인증서 만료일자 확인,경고,Mar 23 19:51:05 2026 GMT,-,갱신 필요 (54일 남음),high,2026-01-28T14:45:17.089399
+SSL-001-example.com,example.com SSL,SSL,인증서,example.com,주요 도메인의 인증서 만료일자 확인,경고,Mar 16 18:32:44 2026 GMT,-,갱신 필요 (47일 남음),high,2026-01-28T14:45:17.187453
+OS-001,디스크 사용량,DEV Master,DEV,Master #1,루트 파일시스템 디스크 사용률 확인,정상,32,80%,정상 범위,high,2026-01-28T14:45:17.637938
+OS-002,메모리 사용량,DEV Master,DEV,Master #1,시스템 메모리 사용률 확인,정상,26.1,85%,정상 범위,high,2026-01-28T14:45:17.889354
+OS-003,CPU 사용량,DEV Master,DEV,Master #1,CPU 평균 사용률 확인,정상,4,90%,정상 범위,high,2026-01-28T14:45:18.312099
+OS-004,시스템 업타임,DEV Master,DEV,Master #1,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 3 hours, 37 minutes",-,정보 수집 완료,info,2026-01-28T14:45:18.555549
+OS-005,좀비 프로세스,DEV Master,DEV,Master #1,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:18.799390
+OS-006,로드 애버리지,DEV Master,DEV,Master #1,1분 평균 로드 확인,정상,1.39,8.0,정상 범위,medium,2026-01-28T14:45:19.034032
+OS-007,열린 파일 수,DEV Master,DEV,Master #1,시스템 전체 열린 파일 디스크립터 수,정상,2752,100000개,정상 범위,low,2026-01-28T14:45:19.264975
+OS-008,네트워크 연결,DEV Master,DEV,Master #1,ESTABLISHED 상태 TCP 연결 수,정상,1159,2000개,정상 범위,low,2026-01-28T14:45:19.543357
+OS-009,커널 버전,DEV Master,DEV,Master #1,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:19.773487
+OS-001,디스크 사용량,DEV Master,DEV,Master #2,루트 파일시스템 디스크 사용률 확인,정상,29,80%,정상 범위,high,2026-01-28T14:45:20.160089
+OS-002,메모리 사용량,DEV Master,DEV,Master #2,시스템 메모리 사용률 확인,정상,25.1,85%,정상 범위,high,2026-01-28T14:45:20.397612
+OS-003,CPU 사용량,DEV Master,DEV,Master #2,CPU 평균 사용률 확인,정상,3,90%,정상 범위,high,2026-01-28T14:45:20.790688
+OS-004,시스템 업타임,DEV Master,DEV,Master #2,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 4 hours, 10 minutes",-,정보 수집 완료,info,2026-01-28T14:45:21.026028
+OS-005,좀비 프로세스,DEV Master,DEV,Master #2,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:21.261383
+OS-006,로드 애버리지,DEV Master,DEV,Master #2,1분 평균 로드 확인,정상,0.99,8.0,정상 범위,medium,2026-01-28T14:45:21.485037
+OS-007,열린 파일 수,DEV Master,DEV,Master #2,시스템 전체 열린 파일 디스크립터 수,정상,2624,100000개,정상 범위,low,2026-01-28T14:45:21.700948
+OS-008,네트워크 연결,DEV Master,DEV,Master #2,ESTABLISHED 상태 TCP 연결 수,정상,1165,2000개,정상 범위,low,2026-01-28T14:45:21.967762
+OS-009,커널 버전,DEV Master,DEV,Master #2,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:22.181990
+OS-001,디스크 사용량,DEV Master,DEV,Master #3,루트 파일시스템 디스크 사용률 확인,정상,30,80%,정상 범위,high,2026-01-28T14:45:22.659083
+OS-002,메모리 사용량,DEV Master,DEV,Master #3,시스템 메모리 사용률 확인,정상,25.0,85%,정상 범위,high,2026-01-28T14:45:22.908323
+OS-003,CPU 사용량,DEV Master,DEV,Master #3,CPU 평균 사용률 확인,정상,2,90%,정상 범위,high,2026-01-28T14:45:23.317323
+OS-004,시스템 업타임,DEV Master,DEV,Master #3,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 3 hours, 50 minutes",-,정보 수집 완료,info,2026-01-28T14:45:23.566545
+OS-005,좀비 프로세스,DEV Master,DEV,Master #3,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:23.813887
+OS-006,로드 애버리지,DEV Master,DEV,Master #3,1분 평균 로드 확인,정상,0.19,8.0,정상 범위,medium,2026-01-28T14:45:24.064458
+OS-007,열린 파일 수,DEV Master,DEV,Master #3,시스템 전체 열린 파일 디스크립터 수,정상,2752,100000개,정상 범위,low,2026-01-28T14:45:24.289540
+OS-008,네트워크 연결,DEV Master,DEV,Master #3,ESTABLISHED 상태 TCP 연결 수,정상,1167,2000개,정상 범위,low,2026-01-28T14:45:24.601148
+OS-009,커널 버전,DEV Master,DEV,Master #3,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:24.829524
+OS-001,디스크 사용량,DEV Worker,DEV,Worker #1,루트 파일시스템 디스크 사용률 확인,정상,51,80%,정상 범위,high,2026-01-28T14:45:25.218452
+OS-002,메모리 사용량,DEV Worker,DEV,Worker #1,시스템 메모리 사용률 확인,정상,35.7,85%,정상 범위,high,2026-01-28T14:45:25.620559
+OS-003,CPU 사용량,DEV Worker,DEV,Worker #1,CPU 평균 사용률 확인,정상,4,90%,정상 범위,high,2026-01-28T14:45:26.207272
+OS-004,시스템 업타임,DEV Worker,DEV,Worker #1,시스템 가동 시간 확인,정상,"up 1 week, 1 day, 21 hours, 25 minutes",-,정보 수집 완료,info,2026-01-28T14:45:26.606881
+OS-005,좀비 프로세스,DEV Worker,DEV,Worker #1,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:27.042940
+OS-006,로드 애버리지,DEV Worker,DEV,Worker #1,1분 평균 로드 확인,정상,1.29,8.0,정상 범위,medium,2026-01-28T14:45:27.327298
+OS-007,열린 파일 수,DEV Worker,DEV,Worker #1,시스템 전체 열린 파일 디스크립터 수,정상,13504,100000개,정상 범위,low,2026-01-28T14:45:27.573231
+OS-008,네트워크 연결,DEV Worker,DEV,Worker #1,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:45:27.864846
+OS-009,커널 버전,DEV Worker,DEV,Worker #1,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:28.122471
+OS-001,디스크 사용량,DEV Worker,DEV,Worker #2,루트 파일시스템 디스크 사용률 확인,정상,46,80%,정상 범위,high,2026-01-28T14:45:28.463714
+OS-002,메모리 사용량,DEV Worker,DEV,Worker #2,시스템 메모리 사용률 확인,정상,35.9,85%,정상 범위,high,2026-01-28T14:45:28.806927
+OS-003,CPU 사용량,DEV Worker,DEV,Worker #2,CPU 평균 사용률 확인,정상,4,90%,정상 범위,high,2026-01-28T14:45:29.306133
+OS-004,시스템 업타임,DEV Worker,DEV,Worker #2,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 5 hours, 20 minutes",-,정보 수집 완료,info,2026-01-28T14:45:29.633900
+OS-005,좀비 프로세스,DEV Worker,DEV,Worker #2,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:29.995453
+OS-006,로드 애버리지,DEV Worker,DEV,Worker #2,1분 평균 로드 확인,정상,1.73,8.0,정상 범위,medium,2026-01-28T14:45:30.250444
+OS-007,열린 파일 수,DEV Worker,DEV,Worker #2,시스템 전체 열린 파일 디스크립터 수,정상,4864,100000개,정상 범위,low,2026-01-28T14:45:30.491827
+OS-008,네트워크 연결,DEV Worker,DEV,Worker #2,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:45:30.759830
+OS-009,커널 버전,DEV Worker,DEV,Worker #2,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:31.001366
+OS-001,디스크 사용량,DEV Worker,DEV,Worker #3,루트 파일시스템 디스크 사용률 확인,정상,50,80%,정상 범위,high,2026-01-28T14:45:31.365324
+OS-002,메모리 사용량,DEV Worker,DEV,Worker #3,시스템 메모리 사용률 확인,정상,35.9,85%,정상 범위,high,2026-01-28T14:45:31.688753
+OS-003,CPU 사용량,DEV Worker,DEV,Worker #3,CPU 평균 사용률 확인,정상,5,90%,정상 범위,high,2026-01-28T14:45:32.210608
+OS-004,시스템 업타임,DEV Worker,DEV,Worker #3,시스템 가동 시간 확인,정상,"up 1 week, 2 days, 5 hours, 23 minutes",-,정보 수집 완료,info,2026-01-28T14:45:32.542768
+OS-005,좀비 프로세스,DEV Worker,DEV,Worker #3,좀비 프로세스 개수 확인,정상,0,-,정상,medium,2026-01-28T14:45:32.898836
+OS-006,로드 애버리지,DEV Worker,DEV,Worker #3,1분 평균 로드 확인,정상,1.80,8.0,정상 범위,medium,2026-01-28T14:45:33.139567
+OS-007,열린 파일 수,DEV Worker,DEV,Worker #3,시스템 전체 열린 파일 디스크립터 수,정상,5184,100000개,정상 범위,low,2026-01-28T14:45:33.380759
+OS-008,네트워크 연결,DEV Worker,DEV,Worker #3,ESTABLISHED 상태 TCP 연결 수,정상,42,2000개,정상 범위,low,2026-01-28T14:45:33.636406
+OS-009,커널 버전,DEV Worker,DEV,Worker #3,현재 커널 버전 정보,정상,5.14.0-611.16.1.el9_7.x86_64,-,정보 수집 완료,info,2026-01-28T14:45:33.864244
 K8S-001,노드 상태,Kubernetes,DEV,DEV Cluster,모든 노드 Ready 상태 확인,정상,"gpu-master-01:Ready
 gpu-master-02:Ready
 gpu-master-03:Ready
 gpu-worker-01:Ready
 gpu-worker-02:Ready
-gpu-worker-03:Ready",-,모두 정상 (6/6),critical,2026-01-28T14:28:56.181089
-K8S-002,노드 CPU 사용량,Kubernetes,DEV,DEV Cluster,노드별 CPU 사용률,정상,"gpu-master-01:8
-gpu-master-02:5
-gpu-master-03:5
-gpu-worker-01:7
+gpu-worker-03:Ready",-,모두 정상 (6/6),critical,2026-01-28T14:45:33.944117
+K8S-002,노드 CPU 사용량,Kubernetes,DEV,DEV Cluster,노드별 CPU 사용률,정상,"gpu-master-01:6
+gpu-master-02:4
+gpu-master-03:4
+gpu-worker-01:6
 gpu-worker-02:4
-gpu-worker-03:10",80%,정상 범위,high,2026-01-28T14:28:56.251382
+gpu-worker-03:9",80%,정상 범위,high,2026-01-28T14:45:34.016260
 K8S-003,노드 메모리 사용량,Kubernetes,DEV,DEV Cluster,노드별 메모리 사용률,정상,"gpu-master-01:29
-gpu-master-02:27
+gpu-master-02:28
 gpu-master-03:27
-gpu-worker-01:38
-gpu-worker-02:39
-gpu-worker-03:39",80%,정상 범위,high,2026-01-28T14:28:56.323877
+gpu-worker-01:37
+gpu-worker-02:38
+gpu-worker-03:40",80%,정상 범위,high,2026-01-28T14:45:34.126274
 K8S-004,Control Plane Pod 상태,Kubernetes,DEV,DEV Cluster,kube-system 네임스페이스 Pod 상태,정상,"calico-kube-controllers-85d77456b8-nzsbs:Running
 calico-node-62fc2:Running
 calico-node-6dwnd:Running
 calico-node-7jrrz:Running
 calico-node-8nwsd:Running
 calico-node-jlq96:Running
-calico-node-x4spl:Run",-,모두 정상 (29/29),critical,2026-01-28T14:28:56.431310
-K8S-005,Warning 이벤트,Kubernetes,DEV,DEV Cluster,최근 Warning 이벤트 수,위험,24,20개,즉시 조치 필요 (24.0개),medium,2026-01-28T14:28:56.499834
+calico-node-x4spl:Run",-,모두 정상 (29/29),critical,2026-01-28T14:45:34.215667
+K8S-005,Warning 이벤트,Kubernetes,DEV,DEV Cluster,최근 Warning 이벤트 수,위험,26,50개,즉시 조치 필요 (26.0개),medium,2026-01-28T14:45:34.284564
 K8S-006,NotReady 노드,Kubernetes,DEV,DEV Cluster,NotReady 상태 노드 수,정상,"0
-0",-,정상,critical,2026-01-28T14:28:56.570345
-K8S-007,클러스터 버전,Kubernetes,DEV,DEV Cluster,Kubernetes 클러스터 버전,정상,N/A,-,정보 수집 완료,info,2026-01-28T14:28:56.618177
-SVC-001,Deployment 상태,Services,DEV,DEV Services,모든 Deployment Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:28:56.742065
-SVC-002,StatefulSet 상태,Services,DEV,DEV Services,모든 StatefulSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:28:56.838103
-SVC-003,DaemonSet 상태,Services,DEV,DEV Services,모든 DaemonSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:28:56.911876
-SVC-004,Service Endpoints,Services,DEV,DEV Services,Endpoint 없는 Service 수,경고,2,-,주의 필요 (2.0개),medium,2026-01-28T14:28:56.999587
-SVC-005,Ingress 상태,Services,DEV,DEV Services,Ingress 리소스 수,정상,17,-,정보 수집 완료,info,2026-01-28T14:28:57.072954
-SVC-006,Pod 재시작 과다,Services,DEV,DEV Services,재시작 5회 이상 Pod,위험,"gitlab-kas-f6c784b56-4x66d:8
-gitlab-kas-f6c784b56-lnpz7:7
-gitlab-redis-master-0:30
-gitlab-registry-66d9df55f4-5j25s:5
+0",-,정상,critical,2026-01-28T14:45:35.275945
+K8S-007,클러스터 버전,Kubernetes,DEV,DEV Cluster,Kubernetes 클러스터 버전,정상,N/A,-,정보 수집 완료,info,2026-01-28T14:45:35.340297
+SVC-001,Deployment 상태,Services,DEV,DEV Services,모든 Deployment Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:45:35.470301
+SVC-002,StatefulSet 상태,Services,DEV,DEV Services,모든 StatefulSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:45:35.555131
+SVC-003,DaemonSet 상태,Services,DEV,DEV Services,모든 DaemonSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-01-28T14:45:35.637515
+SVC-004,Service Endpoints,Services,DEV,DEV Services,Endpoint 없는 Service 수,경고,2,-,주의 필요 (2.0개),medium,2026-01-28T14:45:35.742576
+SVC-005,Ingress 상태,Services,DEV,DEV Services,Ingress 리소스 수,정상,17,-,정보 수집 완료,info,2026-01-28T14:45:35.854640
+SVC-006,Pod 재시작 과다,Services,DEV,DEV Services,재시작 15회 이상 Pod,정상,"gitlab-redis-master-0:30
 gitlab-registry-66d9df55f4-p69d4:28
 gpu-operator-7569f8b499-zgnsl:222
-gpu-operator",-,즉시 조치 필요 (6.0개),medium,2026-01-28T14:28:57.265936
-SVC-007,Pending Pod,Services,DEV,DEV Services,Pending 상태 Pod 수,정상,0,-,정상,high,2026-01-28T14:28:57.354255
-SVC-008,Failed Pod,Services,DEV,DEV Services,Failed 상태 Pod 수,정상,0,-,정상,critical,2026-01-28T14:28:57.434427
-SVC-009,CronJob 상태,Services,DEV,DEV Services,CronJob 개수,정상,0,-,정보 수집 완료,info,2026-01-28T14:28:57.503609
-SVC-010,Failed Job,Services,DEV,DEV Services,Failed 상태 Job 수,정상,0,-,정상,medium,2026-01-28T14:28:57.585440
-APP-ARGO-01,ArgoCD Server,ArgoCD,DEV,DEV Apps,ArgoCD 웹 서버 정상 작동 확인,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:28:57.657060
-APP-HBR-01,Harbor Core,Harbor,DEV,DEV Apps,Harbor Core 서비스 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:28:57.725630
-APP-HBR-02,Harbor Registry,Harbor,DEV,DEV Apps,Docker Registry 서비스 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:28:57.794527
-APP-MON-01,Grafana,Monitoring,DEV,DEV Apps,Grafana 대시보드 파드 상태,정상,1,1개,정상 (현재 1개),medium,2026-01-28T14:28:57.862428
-APP-ELK-01,Elasticsearch Master,Logging,DEV,DEV Apps,Elasticsearch 마스터 노드 수,위험,0,3개,개수 부족 (현재 0/3),high,2026-01-28T14:28:57.929636
-APP-KEY-01,Keycloak,Auth,DEV,DEV Apps,Keycloak 인증 서버 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:28:57.997406
-APP-LOKI-01,Loki Gateway,Logging,DEV,DEV Apps,Loki Gateway 서비스 상태,정상,1,1개,정상 (현재 1개),high,2026-01-28T14:28:58.062709
-APP-LOKI-02,Loki Write/Read,Logging,DEV,DEV Apps,Loki 읽기/쓰기 노드 상태,정상,6,2개,정상 (현재 6개),medium,2026-01-28T14:28:58.135328
-APP-RABBIT-01,RabbitMQ,Middleware,DEV,DEV Apps,RabbitMQ 메시지 브로커 상태,위험,0,1개,개수 부족 (현재 0/1),high,2026-01-28T14:28:58.201097
-APP-SONAR-01,SonarQube,CICD,DEV,DEV Apps,SonarQube 서버 상태,위험,0,1개,개수 부족 (현재 0/1),medium,2026-01-28T14:28:58.271204
-APP-TRAEFIK-01,Traefik,Ingress,DEV,DEV Apps,Traefik Ingress Controller 상태,위험,0,1개,개수 부족 (현재 0/1),critical,2026-01-28T14:28:58.335847
-SW-VER-01,Kubernetes 버전,SW Version,DEV,gpu-master01,Kubelet 버전 확인 (Node 레벨),정상,v1.34.3,-,버전 정보,info,2026-01-28T14:28:58.869672
-SW-VER-02,Containerd 버전,SW Version,DEV,gpu-master01,Containerd 런타임 버전 확인,정상,v2.2.1,-,버전 정보,info,2026-01-28T14:28:59.154239
-SW-VER-03,전체 Pod 이미지 현황,SW Version,DEV,DEV Cluster,클러스터 내 구동 중인 모든 Pod의 이미지 태그 추출,정상,총 153개 이미지 (상세 생략),-,이미지 153개 추출 완료,info,2026-01-28T14:28:59.642146
+gpu-operator-node-feature-discovery-master-6b5787f695-4rdx5:339
+gpu-operator-node-feature-discovery-worke",-,정상,medium,2026-01-28T14:45:36.064967
+SVC-007,Pending Pod,Services,DEV,DEV Services,Pending 상태 Pod 수,정상,0,-,정상,high,2026-01-28T14:45:36.145452
+SVC-008,Failed Pod,Services,DEV,DEV Services,Failed 상태 Pod 수,정상,0,-,정상,critical,2026-01-28T14:45:36.225259
+SVC-009,CronJob 상태,Services,DEV,DEV Services,CronJob 개수,정상,0,-,정보 수집 완료,info,2026-01-28T14:45:36.298694
+SVC-010,Failed Job,Services,DEV,DEV Services,Failed 상태 Job 수,정상,0,-,정상,medium,2026-01-28T14:45:36.391422
+APP-ARGO-01,ArgoCD Server,ArgoCD,DEV,DEV Apps,ArgoCD 웹 서버 정상 작동 확인,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:45:36.474718
+APP-HBR-01,Harbor Core,Harbor,DEV,DEV Apps,Harbor Core 서비스 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:45:36.558090
+APP-HBR-02,Harbor Registry,Harbor,DEV,DEV Apps,Docker Registry 서비스 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:45:36.649699
+APP-MON-01,Grafana,Monitoring,DEV,DEV Apps,Grafana 대시보드 파드 상태,정상,1,1개,정상 (현재 1개),medium,2026-01-28T14:45:36.725061
+APP-ELK-01,Elasticsearch Master,Logging,DEV,DEV Apps,Elasticsearch 마스터 노드 수,위험,0,3개,개수 부족 (현재 0/3),high,2026-01-28T14:45:36.799142
+APP-KEY-01,Keycloak,Auth,DEV,DEV Apps,Keycloak 인증 서버 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:45:36.898313
+APP-LOKI-01,Loki Gateway,Logging,DEV,DEV Apps,Loki Gateway 서비스 상태,정상,1,1개,정상 (현재 1개),high,2026-01-28T14:45:36.981804
+APP-LOKI-02,Loki Write/Read,Logging,DEV,DEV Apps,Loki 읽기/쓰기 노드 상태,정상,6,2개,정상 (현재 6개),medium,2026-01-28T14:45:37.084338
+APP-RABBIT-01,RabbitMQ,Middleware,DEV,DEV Apps,RabbitMQ 메시지 브로커 상태,위험,0,1개,개수 부족 (현재 0/1),high,2026-01-28T14:45:37.152974
+APP-SONAR-01,SonarQube,CICD,DEV,DEV Apps,SonarQube 서버 상태,위험,0,1개,개수 부족 (현재 0/1),medium,2026-01-28T14:45:37.219075
+APP-TRAEFIK-01,Traefik,Ingress,DEV,DEV Apps,Traefik Ingress Controller 상태,정상,1,1개,정상 (현재 1개),critical,2026-01-28T14:45:37.299779
+SW-VER-01,Kubernetes 버전,SW Version,DEV,gpu-master01,Kubelet 버전 확인 (Node 레벨),정상,v1.34.3,-,버전 정보,info,2026-01-28T14:45:37.810469
+SW-VER-02,Containerd 버전,SW Version,DEV,gpu-master01,Containerd 런타임 버전 확인,정상,v2.2.1,-,버전 정보,info,2026-01-28T14:45:38.082208
+SW-VER-03,전체 Pod 이미지 현황,SW Version,DEV,DEV Cluster,클러스터 내 구동 중인 모든 Pod의 이미지 태그 추출,정상,총 153개 이미지 (상세 생략),-,이미지 153개 추출 완료,info,2026-01-28T14:45:38.699874
