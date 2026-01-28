@@ -31,41 +31,43 @@
 | 🗄️ **DB 점검** | MySQL 연결, Replication 상태 |
 | 📊 **보고서 생성** | CSV, DOCX 형식 |
 | 🔒 **보안 설계** | IP/Port 정보 별도 파일 관리, SSH 키 인증 |
-| 🎭 **데모 모드** | SSH 없이 테스트 가능 |
 
 ---
 
 ## 🏗️ 아키텍처
 
+
 ```
+
 ┌─────────────────────────────────────────────────────────────────┐
-│                        CMP 인프라 구성                           │
+│                        CMP 인프라 구성                          │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
+│                                                                 │
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐        │
 │  │   CI/CD      │   │    DEV       │   │    STG       │        │
-│  │  (Jenkins,   │   │  Cluster     │   │  Cluster     │        │
+│  │  (Jenkins,   │   │   Cluster    │   │   Cluster    │        │
 │  │   GitLab,    │   │ (3M + 3W)    │   │ (3M + 3W)    │        │
 │  │   Nexus)     │   │              │   │              │        │
 │  └──────────────┘   └──────────────┘   └──────────────┘        │
-│                                                                  │
+│                                                                 │
 │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐        │
 │  │    PRD       │   │   Database   │   │    NFS       │        │
-│  │  Cluster     │   │  (MySQL x2   │   │  Storage     │        │
+│  │   Cluster    │   │  (MySQL x2   │   │   Storage    │        │
 │  │ (3M + 3W)    │   │  per env)    │   │              │        │
 │  └──────────────┘   └──────────────┘   └──────────────┘        │
-│                                                                  │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
+│
+▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    점검 시스템 (이 프로젝트)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  1. SSH로 각 서버 접속하여 OS 점검                               │
 │  2. Master 노드에서 kubectl로 K8s 점검                           │
 │  3. TCP/HTTP로 서비스 상태 점검                                  │
-│  4. 결과 취합 → CSV/DOCX 보고서 생성                            │
+│  4. 결과 취합 → CSV/DOCX 보고서 생성                             │
 └─────────────────────────────────────────────────────────────────┘
+
 ```
 
 ---
@@ -96,7 +98,7 @@
 | K8S-005 | etcd 상태 | Running |
 | K8S-006 | PV 상태 | Bound |
 | K8S-007 | PVC 상태 | Bound |
-| K8S-008 | Warning 이벤트 | 20개 |
+| K8S-008 | Warning 이벤트 | 50개 |
 | K8S-009 | NotReady 노드 | 0 |
 | K8S-010 | 클러스터 버전 | - |
 
@@ -108,7 +110,7 @@
 | SVC-003 | DaemonSet | Replica 일치 |
 | SVC-004 | Service Endpoints | 0 |
 | SVC-005 | Ingress | - |
-| SVC-006 | Pod 재시작 과다 | 0 |
+| SVC-006 | Pod 재시작 과다 (15회+) | 0 |
 | SVC-007 | Pending Pod | 0 |
 | SVC-008 | Failed Pod | 0 |
 | SVC-009 | CronJob | - |
@@ -118,7 +120,9 @@
 
 ## 📁 프로젝트 구조
 
+
 ```
+
 cmp-infra-check/
 │
 ├── 📄 cmp-infra-check.sh       # 메인 실행 스크립트
@@ -140,7 +144,8 @@ cmp-infra-check/
 │   └── 📄 .gitkeep
 │
 └── 📁 logs/                    # 로그 파일
-    └── 📄 .gitkeep
+└── 📄 .gitkeep
+
 ```
 
 ---
@@ -150,20 +155,23 @@ cmp-infra-check/
 ### 1. 저장소 클론
 
 ```bash
-git clone https://github.com/your-org/cmp-infra-check.git
+git clone [https://github.com/your-org/cmp-infra-check.git](https://github.com/your-org/cmp-infra-check.git)
 cd cmp-infra-check
+
 ```
 
 ### 2. 실행 권한 부여
 
 ```bash
 chmod +x cmp-infra-check.sh
+
 ```
 
 ### 3. Python 의존성 설치
 
 ```bash
 pip3 install pyyaml python-docx
+
 ```
 
 ### 4. 인벤토리 설정
@@ -174,6 +182,7 @@ cp config/inventory.yaml.example config/inventory.yaml
 
 # 실제 IP/Port 정보 입력
 vi config/inventory.yaml
+
 ```
 
 ### 5. SSH 키 설정
@@ -185,6 +194,7 @@ chmod 600 ~/.ssh/id_rsa
 # 환경변수 설정 (선택)
 export SSH_USER="admin"
 export SSH_PRIVATE_KEY_PATH="~/.ssh/id_rsa"
+
 ```
 
 ---
@@ -238,6 +248,7 @@ report:
   company_name: "CMP 인프라"
   team_name: "플랫폼팀"
   output_dir: "./output"
+
 ```
 
 ---
@@ -250,9 +261,6 @@ report:
 # 도움말
 ./cmp-infra-check.sh --help
 
-# 데모 모드 (SSH 없이 테스트)
-./cmp-infra-check.sh --demo
-
 # 기본 실행 (주간 보고서)
 ./cmp-infra-check.sh
 
@@ -262,16 +270,15 @@ report:
 # 특정 환경만 점검
 ./cmp-infra-check.sh --env prd
 
-# JSON 출력
-./cmp-infra-check.sh --json --demo
 ```
 
 ### Python 직접 실행
 
 ```bash
 cd scripts
-python3 main.py --demo
+python3 main.py
 python3 main.py --type monthly
+
 ```
 
 ---
@@ -281,27 +288,35 @@ python3 main.py --type monthly
 ### 권장 사항
 
 1. **inventory.yaml을 .gitignore에 추가**
-   ```gitignore
-   config/inventory.yaml
-   config/secrets.yaml
-   ```
+```gitignore
+config/inventory.yaml
+config/secrets.yaml
+
+```
+
 
 2. **환경변수로 민감 정보 관리**
-   ```bash
-   export SSH_USER="admin"
-   export SSH_PRIVATE_KEY_PATH="/secure/path/id_rsa"
-   export CMP_INVENTORY_PATH="/secure/config/inventory.yaml"
-   ```
+```bash
+export SSH_USER="admin"
+export SSH_PRIVATE_KEY_PATH="/secure/path/id_rsa"
+export CMP_INVENTORY_PATH="/secure/config/inventory.yaml"
+
+```
+
 
 3. **SSH 키 권한 설정**
-   ```bash
-   chmod 600 ~/.ssh/id_rsa
-   chmod 700 ~/.ssh
-   ```
+```bash
+chmod 600 ~/.ssh/id_rsa
+chmod 700 ~/.ssh
+
+```
+
 
 4. **보고서 파일 보안**
-   - 보고서에 IP 주소 등 민감 정보가 포함될 수 있음
-   - output/ 디렉토리 접근 권한 제한
+* 보고서에 IP 주소 등 민감 정보가 포함될 수 있음
+* output/ 디렉토리 접근 권한 제한
+
+
 
 ### 파일 권한 예시
 
@@ -310,6 +325,7 @@ chmod 600 config/inventory.yaml
 chmod 644 config/check_items.yaml
 chmod 755 cmp-infra-check.sh
 chmod 700 logs/
+
 ```
 
 ---
@@ -320,18 +336,21 @@ chmod 700 logs/
 
 ```bash
 0 9 * * 1 /path/to/cmp-infra-check/cmp-infra-check.sh >> /var/log/cmp-check.log 2>&1
+
 ```
 
 ### 월간 점검 (매월 1일 09:00)
 
 ```bash
 0 9 1 * * /path/to/cmp-infra-check/cmp-infra-check.sh --type monthly >> /var/log/cmp-check-monthly.log 2>&1
+
 ```
 
 ### 환경변수 포함
 
 ```bash
 0 9 * * 1 SSH_USER=admin SSH_PRIVATE_KEY_PATH=/home/admin/.ssh/id_rsa /path/to/cmp-infra-check.sh >> /var/log/cmp-check.log 2>&1
+
 ```
 
 ---
@@ -373,6 +392,7 @@ chmod 700 logs/
 ✅ 보고서 생성 완료:
    - CSV: ./output/cmp_infra_check_2025_W49.csv
    - DOCX: ./output/cmp_infra_check_2025_W49.docx
+
 ```
 
 ---
@@ -380,7 +400,7 @@ chmod 700 logs/
 ## 📝 종료 코드
 
 | 코드 | 의미 |
-|------|------|
+| --- | --- |
 | 0 | 모든 항목 정상 |
 | 1 | 경고 항목 있음 |
 | 2 | 위험 항목 있음 |
@@ -400,4 +420,5 @@ chmod 700 logs/
 ## 📄 라이선스
 
 MIT License
->>>>>>> ba864bf (Update README.md)
+
+```
