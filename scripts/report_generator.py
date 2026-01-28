@@ -25,7 +25,7 @@ class ReportConfig:
     """보고서 설정"""
     report_type: str = "weekly"
     company_name: str = "CMP 인프라"
-    team_name: str = "플랫폼팀"
+    team_name: str = "클라우드서비스팀"
     output_dir: str = "./output"
 
 
@@ -302,6 +302,6 @@ if __name__ == "__main__":
         'by_category': {'OS': {'ok': 1, 'warning': 0, 'critical': 0, 'unknown': 0}}
     }
     
-    config = ReportConfig(company_name="CMP 인프라", team_name="플랫폼팀")
+    config = ReportConfig(company_name="CMP 인프라", team_name="클라우드서비스팀")
     paths = generate_reports(test_results, test_summary, config)
     print(f"생성된 보고서: {paths}")

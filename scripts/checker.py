@@ -76,7 +76,7 @@ class CMPInfraChecker:
                 
             numeric_value = float(match.group(1))
             
-            zero_is_ok = ['OS-005', 'K8S-008', 'K8S-009', 'SVC-004', 
+            zero_is_ok = ['OS-005', 'K8S-005', 'K8S-006', 'SVC-004', 
                           'SVC-006', 'SVC-007', 'SVC-008', 'SVC-010']
             
             if check_id in zero_is_ok:
