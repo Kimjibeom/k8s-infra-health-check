@@ -171,48 +171,17 @@ cmp-infra-check/
 
 ## 🚀 설치
 
-### 1. 저장소 클론
-
-```bash
-git clone [https://github.com/your-org/cmp-infra-check.git](https://github.com/your-org/cmp-infra-check.git)
-cd cmp-infra-check
-
-```
-
-### 2. 실행 권한 부여
+### 1. 실행 권한 부여
 
 ```bash
 chmod +x cmp-infra-check.sh
 
 ```
 
-### 3. Python 의존성 설치
+### 2. Python 의존성 설치
 
 ```bash
 pip3 install pyyaml python-docx
-
-```
-
-### 4. 인벤토리 설정
-
-```bash
-# 예시 파일 복사
-cp config/inventory.yaml.example config/inventory.yaml
-
-# 실제 IP/Port 정보 입력
-vi config/inventory.yaml
-
-```
-
-### 5. SSH 키 설정
-
-```bash
-# SSH 키 권한 설정
-chmod 600 ~/.ssh/id_rsa
-
-# 환경변수 설정 (선택)
-export SSH_USER="admin"
-export SSH_PRIVATE_KEY_PATH="~/.ssh/id_rsa"
 
 ```
 
