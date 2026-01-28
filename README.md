@@ -420,4 +420,3 @@ chmod 700 logs/
 ## 📄 라이선스
 
 MIT License
-
