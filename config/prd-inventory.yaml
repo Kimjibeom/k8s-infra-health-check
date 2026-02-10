@@ -1,0 +1,162 @@
+# CMP 인프라 인벤토리 설정
+
+# ============================================
+# CI/CD 인프라 서버
+# ============================================
+cicd_servers:
+  repo:
+    name: "Repo 서버"
+    hostname: "scsic-ishprepo1"
+    ip: "10.105.247.16"
+    ssh_port: 22
+    services:
+      - name: "Repository"
+        port: 80
+        
+  nexus:
+    name: "Nexus 서버"
+    hostname: "scsic-ishpnxs1"
+    ip: "10.105.247.15"
+    ssh_port: 22
+    services:
+      - name: "Nexus Web"
+        port: 8081
+      - name: "Docker Registry"
+        port: 5000
+        
+  jenkins_primary:
+    name: "Jenkins #1 (Primary)"
+    hostname: "scsic-ishpjenkins1"
+    ip: "10.105.247.11"
+    ssh_port: 22
+    services:
+      - name: "Jenkins"
+        port: 8080
+        
+  jenkins_secondary:
+    name: "Jenkins #2 (Backup)"
+    hostname: "scsic-ishpjenkins2"
+    ip: "10.105.247.12"
+    ssh_port: 22
+    services:
+      - name: "Jenkins"
+        port: 8080
+        
+  gitlab_primary:
+    name: "GitLab #1"
+    hostname: "scsic-ishpgitsvr1"
+    ip: "10.105.247.13"
+    ssh_port: 22
+    services:
+      - name: "GitLab"
+        port: 80
+        
+  gitlab_secondary:
+    name: "GitLab #2"
+    hostname: "scsic-ishpgitsvr2"
+    ip: "10.105.247.14"
+    ssh_port: 22
+    services:
+      - name: "GitLab"
+        port: 80
+
+# ============================================
+# 운영 클러스터 (PRD)
+# ============================================
+prd_cluster:
+  name: "운영 클러스터"
+  env: "PRD"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "scsic-icmpmst1"
+      ip: "10.102.68.51"
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "scsic-icmpmst2"
+      ip: "10.102.68.52"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "scsic-icmpmst3"
+      ip: "10.102.68.53"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "scsic-icmpwok1"
+      ip: "10.102.68.57"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "scsic-icmpwok2"
+      ip: "10.102.68.58"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "scsic-icmpwok3"
+      ip: "10.102.68.59"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "scsic-icmpbst1"
+    ip: "10.102.68.81"
+    ssh_port: 22
+    services:
+      - name: "NFS"
+        port: 2049
+        protocol: "tcp/udp"
+        
+  nfs_storage:
+    name: "NFS Storage"
+    hostname: "sc-inas1.sinc.dc"
+    paths:
+      - "/ifs/sos/inc/scsic-icmp-compute"
+      - "/ifs/sos/inc/scsic-icmp-log"
+        
+  databases:
+    - name: "DB #1"
+      hostname: "scsic-icmpdb1"
+      ip: "10.103.64.52"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+    - name: "DB #2"
+      hostname: "scsic-icmpdb2"
+      ip: "10.103.64.53"
+      ssh_port: 22
+      services:
+        - name: "MySQL"
+          port: 3306
+          
+  k8s_api_port: 443
+
+
+# ============================================
+# SSH 접속 설정 (보안)
+# ============================================
+ssh_config:
+  # SSH 키 파일 경로 (상대 또는 절대 경로)
+  private_key_path: "~/.ssh/id_rsa"
+  
+  # SSH 사용자
+  default_user: "root"
+  
+  # SSH 연결 타임아웃 (초)
+  connect_timeout: 10
+  
+  # 명령 실행 타임아웃 (초)
+  command_timeout: 30
+
+
+# ============================================
+# 보고서 설정
+# ============================================
+report:
+  company_name: "CMP 인프라"
+  team_name: "클라우드서비스팀"
+  output_dir: "./output"
