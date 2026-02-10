@@ -46,7 +46,7 @@ class CMPInfraChecker:
     """CMP 인프라 점검 클래스"""
     
     def __init__(self, 
-                 inventory_path: str = "config/dev-inventory.yaml",
+                 inventory_path: str = "config/gpu-inventory.yaml",
                  checks_path: str = "config/check_items.yaml"):
         
         self.inventory_path = inventory_path

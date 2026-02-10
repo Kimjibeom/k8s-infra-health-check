@@ -43,7 +43,7 @@ class ConnectionResult:
 class RemoteExecutor:
     """원격 서버 명령 실행 클래스"""
     
-    def __init__(self, inventory_path: str = "config/dev-inventory.yaml"):
+    def __init__(self, inventory_path: str = "config/gpu-inventory.yaml"):
         self.inventory = self._load_inventory(inventory_path)
         self.ssh_config = self._get_ssh_config()
         
@@ -334,6 +334,6 @@ class RemoteExecutor:
         return "xxx.xxx.xxx.xxx"
 
 
-def get_executor(demo_mode: bool = False, inventory_path: str = "config/dev-inventory.yaml"):
+def get_executor(demo_mode: bool = False, inventory_path: str = "config/gpu-inventory.yaml"):
     """실행기 팩토리 함수"""
     return RemoteExecutor(inventory_path)

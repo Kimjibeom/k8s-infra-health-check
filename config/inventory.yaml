@@ -132,7 +132,6 @@ dev_cluster:
   namespaces:
     - "DEV1"
     - "DEV2"
-    - "default"
     - "kube-system"
     - "metallb-system"
     - "traefik-system"

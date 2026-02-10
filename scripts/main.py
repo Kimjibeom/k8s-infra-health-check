@@ -54,7 +54,7 @@ def main():
     parser = argparse.ArgumentParser(description='CMP 인프라 정기점검 보고서 생성')
     
     parser.add_argument('--inventory', '-i',
-        default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'dev-inventory.yaml'),
+        default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'gpu-inventory.yaml'),
         help='인벤토리 설정 파일 경로')
     parser.add_argument('--checks', '-c',
         default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'check_items.yaml'),
@@ -102,7 +102,7 @@ def main():
         if not args.quiet:
             print("\n" + "=" * 70)
             print("⚠️  진행된 점검 항목이 없습니다 (0건).")
-            print("    config/dev-inventory.yaml 파일에 서버/클러스터 정보가 있는지 확인해주세요.")
+            print("    config/gpu-inventory.yaml 파일에 서버/클러스터 정보가 있는지 확인해주세요.")
             print("=" * 70)
         sys.exit(0)
 

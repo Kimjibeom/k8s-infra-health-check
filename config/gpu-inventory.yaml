@@ -44,15 +44,6 @@ dev_cluster:
     hostname: "gpu-bastion"
     ip: "172.30.32.101"
     ssh_port: 22
-        
-          
-  namespaces:
-    - "databases"
-    - "default"
-    - "kube-system"
-    - "metallb-system"
-    - "rook-ceph"
-    - "traefik"
     
   k8s_api_port: 443
 

@@ -9,7 +9,7 @@ set -e
 # 스크립트 경로 설정
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON_SCRIPT="${SCRIPT_DIR}/scripts/main.py" 
-INVENTORY_FILE="${SCRIPT_DIR}/config/dev-inventory.yaml"
+INVENTORY_FILE="${SCRIPT_DIR}/config/gpu-inventory.yaml"
 CHECKS_FILE="${SCRIPT_DIR}/config/check_items.yaml"
 OUTPUT_DIR="${SCRIPT_DIR}/output"
 
