@@ -42,15 +42,6 @@ cicd_servers:
       - name: "Jenkins"
         port: 8080
         
-  jenkins_old:
-    name: "(구)Jenkins"
-    hostname: "scsic-ishpjendev"
-    ip: "10.102.68.67"
-    ssh_port: 22
-    services:
-      - name: "Jenkins"
-        port: 8080
-        
   gitlab_primary:
     name: "GitLab #1"
     hostname: "scsic-ishpgitsvr1"
@@ -64,15 +55,6 @@ cicd_servers:
     name: "GitLab #2"
     hostname: "scsic-ishpgitsvr2"
     ip: "10.105.247.14"
-    ssh_port: 22
-    services:
-      - name: "GitLab"
-        port: 80
-        
-  gitlab_old:
-    name: "(구)GitLab"
-    hostname: "scsic-ishpgitdev"
-    ip: "10.102.68.65"
     ssh_port: 22
     services:
       - name: "GitLab"
@@ -150,6 +132,10 @@ dev_cluster:
   namespaces:
     - "DEV1"
     - "DEV2"
+    - "default"
+    - "kube-system"
+    - "metallb-system"
+    - "traefik-system"
     
   k8s_api_port: 443
 

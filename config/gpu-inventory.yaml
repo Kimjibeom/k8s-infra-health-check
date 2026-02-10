@@ -1,0 +1,83 @@
+# CMP 인프라 인벤토리 설정
+
+# ============================================
+# 개발 클러스터 (DEV)
+# ============================================
+dev_cluster:
+  name: "개발 클러스터"
+  env: "DEV"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "gpu-master01"
+      ip: "172.30.32.111"
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "gpu-master02"
+      ip: "172.30.32.112"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "gpu-master03"
+      ip: "172.30.32.113"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "gpu-worker01"
+      ip: "172.30.32.121"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "gpu-worker02"
+      ip: "172.30.32.122"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "gpu-worker03"
+      ip: "172.30.32.123"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "gpu-bastion"
+    ip: "172.30.32.101"
+    ssh_port: 22
+        
+          
+  namespaces:
+    - "databases"
+    - "default"
+    - "kube-system"
+    - "metallb-system"
+    - "rook-ceph"
+    - "traefik"
+    
+  k8s_api_port: 443
+
+
+# ============================================
+# SSH 접속 설정 (보안)
+# ============================================
+ssh_config:
+  # SSH 키 파일 경로 (상대 또는 절대 경로)
+  private_key_path: "~/.ssh/id_rsa"
+  
+  # SSH 사용자
+  default_user: "root"
+  
+  # SSH 연결 타임아웃 (초)
+  connect_timeout: 10
+  
+  # 명령 실행 타임아웃 (초)
+  command_timeout: 30
+
+
+# ============================================
+# 보고서 설정
+# ============================================
+report:
+  company_name: "CMP 인프라"
+  team_name: "클라우드서비스팀"
+  output_dir: "./output"
