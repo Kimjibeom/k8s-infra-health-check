@@ -154,7 +154,9 @@ cmp-infra-check/
 │
 ├── 📁 config/                  # 설정 파일
 │   ├── 📄 inventory.yaml       # 🔒 IP/Port 정보
-│   ├── 📄 dev-inventory.yaml   # Dev 클러스터 정보
+│   ├── 📄 dev-inventory.yaml   # DEV 클러스터 정보
+│   ├── 📄 stg-inventory.yaml   # STG 클러스터 정보
+│   ├── 📄 prd-inventory.yaml   # PRD 클러스터 정보
 │   └── 📄 check_items.yaml     # 점검 항목 정의
 │
 ├── 📁 scripts/                 # Python 스크립트
