@@ -36,31 +36,42 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# 의존성 확인 로직
-check_dependencies() {
+# 글로벌 변수로 사용할 파이썬 경로 초기화
+PYTHON_EXE="python3"
+
+# 의존성 확인 로직 (다양한 Python 버전 대응)
+check_dependencies () {
     log_info "의존성 확인 중..."
     
-    # Python 확인
-    if ! command -v python3 &> /dev/null; then
-        log_error "Python3이 설치되어 있지 않습니다."
+    # 1. 사용 가능한 Python 실행 파일 찾기 (최신 버전 우선 탐색)
+    PYTHON_EXE=""
+    for cmd in python3.11 python3.10 python3.9 python3; do
+        if command -v "$cmd" &> /dev/null; then
+            PYTHON_EXE=$(command -v "$cmd")
+            break
+        fi
+    done
+
+    if [ -z "$PYTHON_EXE" ]; then
+        log_error "Python3 (3.9 이상 권장) 이 설치되어 있지 않습니다."
         exit 1
     fi
-    
-    # 패키지명과 import명이 다른 경우 매핑 처리
+
+    log_info "사용 중인 Python: $($PYTHON_EXE --version) ($PYTHON_EXE)"
+
+    # 2. 패키지명과 import명이 다른 경우 매핑 처리
     declare -A package_map
     package_map["pyyaml"]="yaml"
     package_map["python-docx"]="docx"
 
-    # pip 패키지 확인 및 설치
+    # 3. 패키지 확인 및 설치
     for pkg in "${!package_map[@]}"; do
         module_name="${package_map[$pkg]}"
         
-        # 현재 활성화된 python3 환경에서 import 가능 여부 확인
-        if ! python3 -c "import ${module_name}" 2>/dev/null; then
+        # 찾은 실행 파일 ($PYTHON_EXE) 로 모듈 확인
+        if ! "$PYTHON_EXE" -c "import ${module_name}" 2>/dev/null; then
             log_warning "${pkg} (모듈명: ${module_name}) 패키지가 없습니다. 설치 중..."
-            
-            # python3 -m pip 사용 (가상환경 pip 사용)
-            python3 -m pip install ${pkg} --quiet 2>/dev/null || \
+            "$PYTHON_EXE" -m pip install ${pkg} --quiet 2>/dev/null || \
             log_warning "${pkg} 설치 실패. 인터넷 연결이나 권한을 확인하세요."
         fi
     done
@@ -143,7 +154,7 @@ main() {
     
     # Python 스크립트 실행
     # (주의: scripts/main.py 경로에 앞서 수정한 파이썬 코드가 있어야 합니다)
-    python3 "${PYTHON_SCRIPT}" \
+    "$PYTHON_EXE" "${PYTHON_SCRIPT}" \
         --inventory "${INVENTORY_FILE}" \
         --checks "${CHECKS_FILE}" \
         --output-dir "${OUTPUT_DIR}" \
