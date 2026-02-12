@@ -21,8 +21,6 @@ cicd_servers:
     services:
       - name: "Nexus Web"
         port: 8081
-      - name: "Docker Registry"
-        port: 5000
         
   jenkins_primary:
     name: "Jenkins #1 (Primary)"

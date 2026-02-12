@@ -28,7 +28,7 @@
 | 🖥️ **OS 점검** | 디스크, 메모리, CPU, 프로세스 등 10개 항목 |
 | ☸️ **K8s 클러스터 점검** | 노드, Control Plane, etcd, PV/PVC 등 10개 항목 |
 | 🚀 **K8s 서비스 점검** | Deployment, StatefulSet, DaemonSet 등 10개 항목 |
-| 🔧 **CI/CD 점검** | Jenkins, GitLab, Nexus, Docker Registry |
+| 🔧 **CI/CD 점검** | Jenkins, GitLab, Nexus |
 | 🗄️ **DB 점검** | MySQL 연결, Replication 상태 |
 | 📊 **보고서 생성** | CSV, DOCX 형식 |
 | 🔒 **보안 설계** | IP/Port 정보 별도 파일 관리, SSH 키 인증 |

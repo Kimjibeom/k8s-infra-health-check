@@ -240,12 +240,6 @@ cicd_checks:
     check_type: "http_status"
     expected_status: 200
     severity: "critical"
-    
-  - id: CICD-004
-    name: "Docker Registry"
-    description: "Docker Registry 서비스 응답 확인"
-    check_type: "tcp_port"
-    severity: "high"
 
 # ============================================
 # 데이터베이스 점검 항목
@@ -310,7 +304,7 @@ k8s_app_checks:
   - id: APP-HBR-02
     name: "Harbor Registry"
     category: "Harbor"
-    description: "Docker Registry 서비스 상태"
+    description: "Registry 서비스 상태"
     command: "kubectl get pods -n harbor -l app=harbor,component=registry --no-headers | grep Running | wc -l"
     threshold: 1
     unit: "개"
