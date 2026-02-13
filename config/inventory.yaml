@@ -322,3 +322,11 @@ report:
   company_name: "CMP 인프라"
   team_name: "클라우드서비스팀"
   output_dir: "./output"
+  # SSL 인증서 점검 대상 도메인 (선택, 없으면 기본 도메인 사용)
+  # ssl_domains:
+  #   - "your-app.example.com"
+  #   - "api.example.com"
+
+# SSL 점검 도메인을 최상위에 둘 수도 있음 (report.ssl_domains 대신 사용)
+# ssl_domains:
+#   - "your-app.example.com"

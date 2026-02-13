@@ -129,7 +129,7 @@ class CMPInfraChecker:
             # IP가 없으면 Skip
             if not ip: continue
 
-            port = server.get('port', 22)
+            port = server.get('ssh_port', server.get('port', 22))
             server_name = server.get('name', hostname)
             category = server.get('category', 'OS')
             
@@ -408,8 +408,9 @@ class CMPInfraChecker:
                         message = "서비스 응답 없음"
                         value = "연결 실패"
                 
+                check_id = f"CICD-{key}-{svc_name}".replace(' ', '_')
                 results.append(CheckResult(
-                    check_id=f"CICD-{key.upper()[:3]}",
+                    check_id=check_id,
                     name=f"{svc_name} 서비스",
                     category="CI/CD",
                     subcategory="CI/CD 인프라",
@@ -464,11 +465,10 @@ class CMPInfraChecker:
     # ==========================================
     def check_ssl_certs(self) -> List[CheckResult]:
         results = []
-        # inventory.yaml에 ssl_domains 섹션이 있다고 가정하거나, 하드코딩된 리스트 사용
-        target_domains = [
-            "google.com", 
-            "example.com"
-        ]
+        # 인벤토리 ssl_domains 또는 report.ssl_domains 사용, 없으면 기본 도메인
+        target_domains = self.executor.get_ssl_domains()
+        if not target_domains:
+            target_domains = ["google.com", "example.com"]
         
         ssl_checks = self.checks_config.get('ssl_checks', [])
         if not ssl_checks: return results
@@ -648,6 +648,74 @@ class CMPInfraChecker:
                 target=f"{env_name} Cluster",
                 severity=check.get('severity', 'info')
             ))
+        # 인벤토리 nfs_storage 호스트 연결 확인 (hostname 또는 ip로 2049 포트)
+        nfs_cfg = cluster.get('nfs_storage')
+        if nfs_cfg:
+            host = nfs_cfg.get('ip') or nfs_cfg.get('hostname')
+            if host:
+                ok = self.executor.check_tcp_port(host, 2049)
+                status = CheckStatus.OK if ok else CheckStatus.CRITICAL
+                value = "TCP 2049 Open" if ok else "연결 불가"
+                message = "NFS 스토리지 서버 연결 정상" if ok else "NFS 스토리지 서버 연결 실패"
+                results.append(CheckResult(
+                    check_id="STG-NFS-HOST",
+                    name=nfs_cfg.get('name', 'NFS Storage') + " 서버",
+                    category="Storage",
+                    subcategory=env_name,
+                    description="인벤토리 nfs_storage 호스트 NFS 포트(2049) 확인",
+                    status=status,
+                    value=value,
+                    threshold=None,
+                    unit="",
+                    message=message,
+                    target=str(host),
+                    severity="critical"
+                ))
+        return results
+
+    # ==========================================
+    # Bastion 서비스 점검 (인벤토리 bastion.services 포트 확인)
+    # ==========================================
+    def check_bastion_services(self, cluster_key: str) -> List[CheckResult]:
+        """클러스터 Bastion에 정의된 서비스(NFS, RPC 등) 포트 연결 확인"""
+        results = []
+        cluster = self.executor.get_cluster_info(cluster_key)
+        if not cluster:
+            return results
+        bastion = cluster.get('bastion')
+        if not bastion:
+            return results
+        services = bastion.get('services', [])
+        if not services:
+            return results
+        ip = bastion.get('ip', '')
+        if not ip:
+            return results
+        env_name = cluster.get('env', cluster_key.upper())
+        bastion_name = bastion.get('name', 'Bastion')
+        for svc in services:
+            port = svc.get('port')
+            if port is None:
+                continue
+            svc_name = svc.get('name', f'Port {port}')
+            ok = self.executor.check_tcp_port(ip, port)
+            status = CheckStatus.OK if ok else CheckStatus.CRITICAL
+            value = f"TCP {port} Open" if ok else "연결 불가"
+            message = "포트 응답 정상" if ok else "포트 연결 실패"
+            results.append(CheckResult(
+                check_id=f"BASTION-{env_name}-{svc_name}".replace(' ', '_'),
+                name=f"{svc_name} (Bastion)",
+                category="Bastion",
+                subcategory=env_name,
+                description=f"{bastion_name} {svc_name} 포트 {port} 확인",
+                status=status,
+                value=value,
+                threshold=None,
+                unit="",
+                message=message,
+                target=bastion_name,
+                severity="high"
+            ))
         return results
 
     # ==========================================
@@ -712,6 +780,7 @@ class CMPInfraChecker:
             self.results.extend(self.check_databases(cluster_key))
             self.results.extend(self.check_sw_versions(cluster_key))
             self.results.extend(self.check_storage_details(cluster_key))
+            self.results.extend(self.check_bastion_services(cluster_key))
             
         return self.results
     

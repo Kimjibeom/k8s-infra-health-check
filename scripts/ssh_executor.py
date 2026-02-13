@@ -324,7 +324,17 @@ class RemoteExecutor:
     def get_cicd_servers(self) -> Dict[str, Any]:
         """CI/CD 서버 정보 반환"""
         return self.inventory.get('cicd_servers', {})
-    
+
+    def get_ssl_domains(self) -> Optional[List[str]]:
+        """SSL 점검 대상 도메인 목록 반환 (인벤토리 ssl_domains 또는 report.ssl_domains)"""
+        domains = self.inventory.get('ssl_domains')
+        if domains and isinstance(domains, list):
+            return [str(d).strip() for d in domains if str(d).strip()]
+        domains = self.inventory.get('report', {}).get('ssl_domains')
+        if domains and isinstance(domains, list):
+            return [str(d).strip() for d in domains if str(d).strip()]
+        return None
+
     def mask_ip(self, ip: str) -> str:
         """IP 주소 마스킹 (보안 로깅용)"""
         if not ip: return "N/A"
