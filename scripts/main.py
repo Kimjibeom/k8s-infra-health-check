@@ -96,7 +96,7 @@ def main():
         checks_path=args.checks
     )
     
-    results = checker.run_all_checks()
+    results = checker.run_all_checks(env_filter=args.env)
     
     if not results:
         if not args.quiet:

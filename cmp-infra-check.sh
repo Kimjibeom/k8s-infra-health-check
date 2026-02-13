@@ -128,7 +128,6 @@ CMP 인프라 정기점검 보고서 생성기
 
 옵션:
     --type, -t <weekly|monthly>    보고서 유형 (기본: weekly)
-    --demo                         데모 모드 (샘플 데이터 사용)
     --env, -e <dev|stg|prd|all>    점검할 환경 (기본: all)
     --output-dir, -o <경로>        보고서 출력 디렉토리
     --json                         JSON 형식 출력

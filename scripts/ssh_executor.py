@@ -334,6 +334,6 @@ class RemoteExecutor:
         return "xxx.xxx.xxx.xxx"
 
 
-def get_executor(demo_mode: bool = False, inventory_path: str = "config/gpu-inventory.yaml"):
+def get_executor(inventory_path: str = "config/gpu-inventory.yaml"):
     """실행기 팩토리 함수"""
     return RemoteExecutor(inventory_path)

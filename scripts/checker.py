@@ -582,44 +582,68 @@ class CMPInfraChecker:
         return results
 
     # ==========================================
-    #  PVC 점검  
+    # 스토리지 점검 (storage_checks: command / tcp_port)
     # ==========================================
     def check_storage_details(self, cluster_key: str) -> List[CheckResult]:
         results = []
         cluster = self.executor.get_cluster_info(cluster_key)
-        if not cluster: return results
-        
+        if not cluster:
+            return results
         env_name = cluster.get('env', cluster_key.upper())
-        storage_checks = self.checks_config.get('storage_detail_checks', [])
-        
+        storage_checks = self.checks_config.get('storage_checks', [])
+        # tcp_port 점검 시 사용할 IP (클러스터 첫 마스터 또는 localhost)
+        masters = cluster.get('masters', [])
+        storage_host = masters[0].get('ip', '127.0.0.1') if masters else '127.0.0.1'
+
         for check in storage_checks:
-            conn_result = self.executor.execute_local(check['command'])
-            
-            if conn_result.success:
-                raw_value = conn_result.stdout.strip()
-                if raw_value:
-                    value = raw_value
-                    status = CheckStatus.OK
-                    message = "스토리지 할당 현황"
+            check_id = check.get('id', '')
+            if check.get('check_type') == 'tcp_port':
+                port = check.get('port')
+                if port is None:
+                    continue
+                ok = self.executor.check_tcp_port(storage_host, port)
+                value = f"TCP {port} Open" if ok else "연결 불가"
+                status = CheckStatus.OK if ok else CheckStatus.CRITICAL
+                message = "포트 응답 정상" if ok else "포트 연결 실패"
+            elif 'command' in check:
+                conn_result = self.executor.execute_local(check['command'])
+                if conn_result.success:
+                    raw_value = conn_result.stdout.strip()
+                    if raw_value:
+                        value = raw_value
+                        threshold = check.get('threshold')
+                        if threshold is not None:
+                            try:
+                                n = int(value)
+                                status = CheckStatus.OK if n >= threshold else CheckStatus.CRITICAL
+                                message = f"정상 ({n}개)" if n >= threshold else f"부족 (현재 {n}/{threshold})"
+                            except ValueError:
+                                status = CheckStatus.OK
+                                message = "스토리지 할당 현황"
+                        else:
+                            status = CheckStatus.OK
+                            message = "스토리지 할당 현황"
+                    else:
+                        value = "0"
+                        status = CheckStatus.CRITICAL if (check.get('threshold') or 0) > 0 else CheckStatus.OK
+                        message = "NFS 마운트 없음"
                 else:
-                    value = "없음"
-                    status = CheckStatus.OK
-                    message = "PVC 없음"
+                    value = "N/A"
+                    status = CheckStatus.UNKNOWN
+                    message = conn_result.error_message or "조회 실패"
             else:
-                value = "N/A"
-                status = CheckStatus.UNKNOWN
-                message = conn_result.error_message or "조회 실패"
-            
+                continue
+
             results.append(CheckResult(
-                check_id=check['id'],
-                name=check['name'],
-                category="Storage Detail",
+                check_id=check_id,
+                name=check.get('name', ''),
+                category="Storage",
                 subcategory=env_name,
-                description=check['description'],
+                description=check.get('description', ''),
                 status=status,
                 value=value,
-                threshold=None,
-                unit="",
+                threshold=check.get('threshold'),
+                unit=check.get('unit', ''),
                 message=message,
                 target=f"{env_name} Cluster",
                 severity=check.get('severity', 'info')
@@ -629,8 +653,8 @@ class CMPInfraChecker:
     # ==========================================
     # 전체 점검 실행 (로직 흐름 제어)
     # ==========================================
-    def run_all_checks(self) -> List[CheckResult]:
-        """모든 점검 실행 - Inventory 누락 시 Skip 처리"""
+    def run_all_checks(self, env_filter: str = 'all') -> List[CheckResult]:
+        """모든 점검 실행 - Inventory 누락 시 Skip 처리. env_filter: dev|stg|prd|all"""
         self.results = []
         
         # 1. CI/CD 서비스 점검
@@ -651,12 +675,15 @@ class CMPInfraChecker:
         print("📋 SSL 인증서 점검 중...")
         self.results.extend(self.check_ssl_certs())
         
-        # 2. 클러스터 환경별 점검
-        environments = [
+        # 2. 클러스터 환경별 점검 (env_filter에 따라 대상 선택)
+        all_environments = [
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
         ]
+        env_map = {'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'], 'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']}
+        allowed_keys = set(env_map.get(env_filter, env_map['all']))
+        environments = [(k, l) for k, l in all_environments if k in allowed_keys]
 
         for cluster_key, label in environments:
             cluster_info = self.executor.get_cluster_info(cluster_key)
