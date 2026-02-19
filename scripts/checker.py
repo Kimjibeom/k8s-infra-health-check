@@ -85,12 +85,15 @@ class CMPInfraChecker:
                 else:
                     return CheckStatus.CRITICAL, f"즉시 조치 필요 ({numeric_value}개)"
             else:
-                if numeric_value < threshold * 0.8:
+                # 임계치 판정: 임계치의 70% 미만 정상, 70~85% 경고, 85% 이상 위험
+                threshold_70 = threshold * 0.7
+                threshold_85 = threshold * 0.85
+                if numeric_value < threshold_70:
                     return CheckStatus.OK, "정상 범위"
-                elif numeric_value < threshold:
-                    return CheckStatus.WARNING, f"임계치 근접 ({threshold})"
+                elif numeric_value < threshold_85:
+                    return CheckStatus.WARNING, f"임계치 근접 ({numeric_value:.1f}% / {threshold}%)"
                 else:
-                    return CheckStatus.CRITICAL, f"임계치 초과 ({threshold})"
+                    return CheckStatus.CRITICAL, f"임계치 초과 ({numeric_value:.1f}% / {threshold}%)"
                     
         except Exception:
             return CheckStatus.UNKNOWN, "값 파싱 실패"
@@ -185,7 +188,7 @@ class CMPInfraChecker:
         )
 
     # ==========================================
-    # Kubernetes 점검 (로컬 실행)
+    # Kubernetes 점검 (로컬 실행 - Bastion에서 해당 클러스터 kubectl 사용)
     # ==========================================
     def check_k8s_cluster(self, cluster_key: str) -> List[CheckResult]:
         results = []
@@ -195,7 +198,7 @@ class CMPInfraChecker:
         env_name = cluster.get('env', cluster_key.upper())
         k8s_checks = self.checks_config.get('k8s_cluster_checks', [])
         
-        # 로컬 (Bastion)에서 kubectl 명령 실행
+        # Bastion 로컬에서 kubectl 실행 (해당 Bastion의 기본 kubeconfig/컨텍스트 사용)
         for check in k8s_checks:
             result = self._run_k8s_check_local(check, env_name)
             results.append(result)
@@ -540,7 +543,8 @@ class CMPInfraChecker:
                 hostname = target_node.get('hostname')
                 ip = target_node.get('ip')
                 
-                res = self.executor.execute_ssh(hostname, ip, check['command'], target_node.get('port', 22))
+                res = self.executor.execute_ssh(hostname, ip, check['command'],
+                                                target_node.get('ssh_port', target_node.get('port', 22)))
                 value = res.stdout.strip() if res.success else "확인 불가"
                 status = CheckStatus.OK if res.success else CheckStatus.UNKNOWN
 
@@ -559,7 +563,6 @@ class CMPInfraChecker:
         # 2. 클러스터 레벨 점검 (Pod 이미지 등 - kubectl 사용)
         for check in sw_checks:
             if "kubectl" not in check['command']: continue
-            
             res = self.executor.execute_local(check['command'])
             raw_value = res.stdout.strip()
             lines = raw_value.split('\n')
@@ -743,24 +746,20 @@ class CMPInfraChecker:
         print("📋 SSL 인증서 점검 중...")
         self.results.extend(self.check_ssl_certs())
         
-        # 2. 클러스터 환경별 점검 (env_filter에 따라 대상 선택)
+        # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상 (각 Bastion에서 해당 인벤토리만 사용하는 시나리오)
         all_environments = [
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
         ]
+        # 인벤토리에 존재하는 클러스터만 필터
+        clusters_in_inventory = [(k, l) for k, l in all_environments if self.executor.get_cluster_info(k)]
         env_map = {'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'], 'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']}
         allowed_keys = set(env_map.get(env_filter, env_map['all']))
-        environments = [(k, l) for k, l in all_environments if k in allowed_keys]
+        environments = [(k, l) for k, l in clusters_in_inventory if k in allowed_keys]
 
         for cluster_key, label in environments:
             cluster_info = self.executor.get_cluster_info(cluster_key)
-            
-            # Inventory에 해당 클러스터 정보가 없으면 Skip
-            if not cluster_info:
-                print(f"⚠️  [Skip] Inventory에 {label} 정보가 없어 건너뜁니다.")
-                continue
-            
             print(f"📋 {label} 점검 중...")
             
             # OS 점검 대상 서버 수집

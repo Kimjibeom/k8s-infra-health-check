@@ -165,10 +165,9 @@ class RemoteExecutor:
             )
 
     def execute_local(self, command: str, timeout: int = None) -> ConnectionResult:
-        """로컬(Bastion)에서 명령 실행"""
+        """로컬(Bastion)에서 명령 실행 (각 Bastion은 해당 클러스터의 kubectl만 사용)"""
         start_time = datetime.now()
         timeout = timeout or self.ssh_config['command_timeout']
-        
         try:
             # shell=True를 사용하여 파이프(|) 등의 쉘 기능 지원
             result = subprocess.run(

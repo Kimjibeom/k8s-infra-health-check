@@ -113,8 +113,8 @@ k8s_cluster_checks:
     
   - id: K8S-005
     name: "Warning 이벤트"
-    description: "최근 Warning 이벤트 수"
-    command: "kubectl get events --all-namespaces --field-selector type=Warning 2>/dev/null | tail -n +2 | wc -l"
+    description: "최근 1시간 이내 Warning 이벤트 수 (현재 상태만 확인)"
+    command: "kubectl get events --all-namespaces --field-selector type=Warning --sort-by='.lastTimestamp' 2>/dev/null | tail -n +2 | head -300 | awk -v cutoff=$(date -d '1 hour ago' +%Y-%m-%dT%H:%M:%S 2>/dev/null || date -v-1H +%Y-%m-%dT%H:%M:%S 2>/dev/null || echo '') '{if(cutoff==\"\" || ($1\"T\"$2) >= cutoff) count++} END {print count+0}'"
     threshold: 50
     unit: "개"
     severity: "medium"
@@ -178,8 +178,8 @@ k8s_service_checks:
     
   - id: SVC-006
     name: "Pod 재시작 과다"
-    description: "재시작 15회 이상 Pod"
-    command: "kubectl get pods --all-namespaces --no-headers 2>/dev/null | awk '$5>=15{print $2\":\"$5}'"
+    description: "현재 실행 중인 Pod 중 재시작 15회 이상인 Pod 수"
+    command: "kubectl get pods --all-namespaces --no-headers 2>/dev/null | awk '$3==\"Running\" && $5>=15{count++} END {print count+0}'"
     threshold: 0
     unit: "개"
     severity: "medium"
