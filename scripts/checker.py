@@ -46,7 +46,7 @@ class CMPInfraChecker:
     """CMP 인프라 점검 클래스"""
     
     def __init__(self, 
-                 inventory_path: str = "config/gpu-inventory.yaml",
+                 inventory_path: str = "config/inventory.yaml",
                  checks_path: str = "config/check_items.yaml"):
         
         self.inventory_path = inventory_path
@@ -126,24 +126,19 @@ class CMPInfraChecker:
         results = []
         if not servers: return results
         os_checks = self.checks_config.get('os_checks', [])
-        
+
         for server in servers:
             hostname = server.get('hostname', '')
             ip = server.get('ip', '')
-            
-            # IP가 없으면 Skip
             if not ip: continue
-
             port = server.get('ssh_port', server.get('port', 22))
             server_name = server.get('name', hostname)
             category = server.get('category', 'OS')
-            
             for check in os_checks:
-                result = self._run_os_check(check, hostname, ip, port, 
-                                               server_name, category, env_name)
+                result = self._run_os_check(check, hostname, ip, port, server_name, category, env_name)
                 results.append(result)
         return results
-    
+
     def _run_os_check(self, check: dict, hostname: str, ip: str, port: int,
                       server_name: str, category: str, env_name: str) -> CheckResult:
         check_id = check['id']
@@ -534,17 +529,15 @@ class CMPInfraChecker:
         
         sw_checks = self.checks_config.get('sw_version_checks', [])
         
-        # 1. OS 레벨 점검 (모든 마스터/워커 노드에서 실행하거나, 대표 노드 하나에서만 실행)
+        # 1. OS 레벨 점검 (대표 마스터 노드에서 실행)
         masters = cluster.get('masters', [])
         target_node = masters[0] if masters else None
-        
+
         if target_node:
             for check in sw_checks:
-                if "kubectl" in check['command']: continue # kubectl 명령은 아래에서 별도 처리
-                
+                if "kubectl" in check['command']: continue
                 hostname = target_node.get('hostname')
                 ip = target_node.get('ip')
-                
                 res = self.executor.execute_ssh(hostname, ip, check['command'],
                                                 target_node.get('ssh_port', target_node.get('port', 22)))
                 value = res.stdout.strip() if res.success else "확인 불가"
@@ -750,6 +743,7 @@ class CMPInfraChecker:
         
         # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상
         all_environments = [
+            ('gpu_cluster', 'GPU 클러스터(GPU)'),  # 테스트용, 점검 후 삭제 예정
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
@@ -759,7 +753,11 @@ class CMPInfraChecker:
         if cluster_filter:
             allowed_keys = set(cluster_filter)
         else:
-            env_map = {'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'], 'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']}
+            env_map = {
+                'gpu': ['gpu_cluster'],
+                'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'],
+                'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']  # all에는 gpu 미포함 (테스트용)
+            }
             allowed_keys = set(env_map.get(env_filter, env_map['all']))
         environments = [(k, l) for k, l in clusters_in_inventory if k in allowed_keys]
 

@@ -43,7 +43,7 @@ class ConnectionResult:
 class RemoteExecutor:
     """원격 서버 명령 실행 클래스"""
     
-    def __init__(self, inventory_path: str = "config/gpu-inventory.yaml"):
+    def __init__(self, inventory_path: str = "config/inventory.yaml"):
         self.inventory = self._load_inventory(inventory_path)
         self.ssh_config = self._get_ssh_config()
         
@@ -87,10 +87,9 @@ class RemoteExecutor:
         except Exception:
             return path
     
-    def execute_ssh(self, host: str, ip: str, command: str, 
+    def execute_ssh(self, host: str, ip: str, command: str,
                     port: int = 22, timeout: int = None) -> ConnectionResult:
         """SSH로 원격 명령 실행"""
-        
         if not ip or ip.lower() == 'none':
             return ConnectionResult(
                 success=False, host=host, ip=ip,
@@ -99,16 +98,14 @@ class RemoteExecutor:
 
         start_time = datetime.now()
         timeout = timeout or self.ssh_config['command_timeout']
-        
+
         ssh_key = self._expand_path(self.ssh_config['private_key_path'])
         user = self.ssh_config['user']
         connect_timeout = self.ssh_config['connect_timeout']
-        
-        # SSH 명령 구성
+
         ssh_cmd = [
             'ssh',
-            '-q',                           # Quiet 모드
-            '-n',                           # Stdin 리다이렉트
+            '-q', '-n',
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', f'ConnectTimeout={connect_timeout}',
@@ -260,8 +257,8 @@ class RemoteExecutor:
                     'services': server.get('services', [])
                 })
         
-        # 클러스터별 서버
-        for cluster_key in ['dev_cluster', 'stg_cluster', 'prd_cluster']:
+        # 클러스터별 서버 (gpu_cluster: 테스트용, 점검 후 삭제 예정)
+        for cluster_key in ['gpu_cluster', 'dev_cluster', 'stg_cluster', 'prd_cluster']:
             cluster = self.inventory.get(cluster_key, {})
             if not cluster: continue
             
@@ -343,6 +340,6 @@ class RemoteExecutor:
         return "xxx.xxx.xxx.xxx"
 
 
-def get_executor(inventory_path: str = "config/gpu-inventory.yaml"):
+def get_executor(inventory_path: str = "config/inventory.yaml"):
     """실행기 팩토리 함수"""
     return RemoteExecutor(inventory_path)

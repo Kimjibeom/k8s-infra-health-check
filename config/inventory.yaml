@@ -59,6 +59,53 @@ cicd_servers:
         port: 80
 
 # ============================================
+# GPU 클러스터 (GPU) - 테스트용, 점검 후 삭제 예정
+# ============================================
+gpu_cluster:
+  name: "GPU 클러스터"
+  env: "GPU"
+  
+  masters:
+    - name: "Master #1"
+      hostname: "gpu-master-01"
+      ip: "172.30.32.111"
+      ssh_port: 22
+      
+    - name: "Master #2"
+      hostname: "gpu-master-02"
+      ip: "172.30.32.112"
+      ssh_port: 22
+      
+    - name: "Master #3"
+      hostname: "gpu-master-03"
+      ip: "172.30.32.113"
+      ssh_port: 22
+      
+  workers:
+    - name: "Worker #1"
+      hostname: "gpu-worker-01"
+      ip: "172.30.32.121"
+      ssh_port: 22
+      
+    - name: "Worker #2"
+      hostname: "gpu-worker-02"
+      ip: "172.30.32.122"
+      ssh_port: 22
+      
+    - name: "Worker #3"
+      hostname: "gpu-worker-03"
+      ip: "172.30.32.123"
+      ssh_port: 22
+      
+  bastion:
+    name: "Bastion"
+    hostname: "gpu-bastion"
+    ip: "172.30.32.101"
+    ssh_port: 22
+    
+  k8s_api_port: 443
+
+# ============================================
 # 개발 클러스터 (DEV)
 # ============================================
 dev_cluster:
@@ -290,7 +337,7 @@ ssh_config:
   private_key_path: "~/.ssh/id_rsa"
   
   # SSH 사용자
-  default_user: "admin"
+  default_user: "root"
   
   # SSH 연결 타임아웃 (초)
   connect_timeout: 10

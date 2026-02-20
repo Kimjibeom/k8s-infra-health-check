@@ -382,11 +382,3 @@ chmod 700 logs/
 ✅ 보고서 생성 완료:
    - CSV: ./output/cmp_infra_check_2025_W49.csv
    - DOCX: ./output/cmp_infra_check_2025_W49.docx
-
-```
-
----
-
-## 📄 라이선스
-
-MIT License

@@ -62,8 +62,8 @@ def main():
     parser.add_argument('--type', '-t', choices=['weekly', 'monthly'], 
         default='weekly', help='보고서 유형')
     parser.add_argument('--output-dir', '-o', help='보고서 출력 디렉토리')
-    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'all'],
-        default='all', help='점검할 환경 (--cluster 미지정 시 사용, 기본: all)')
+    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'gpu', 'all'],
+        default='all', help='점검할 환경 (--cluster 미지정 시 사용, gpu=테스트용)')
     parser.add_argument('--cluster', action='append', default=None, metavar='CLUSTER',
         help='점검할 클러스터 (복수 지정 가능, 예: --cluster dev_cluster --cluster stg_cluster). 지정 시 --env 무시')
     parser.add_argument('--json', action='store_true', help='JSON 형식 출력')
@@ -84,13 +84,21 @@ def main():
     inventory = load_inventory_config(args.inventory)
     report_config = create_report_config(inventory, args.type, args.output_dir)
     
+    # 출력용 환경 이름: --cluster 사용 시 해당 클러스터명, --env 사용 시 환경명, 미지정 시 ALL
+    if args.cluster:
+        env_display = ", ".join(args.cluster).upper()
+    elif args.env != 'all':
+        env_display = args.env.upper()
+    else:
+        env_display = "ALL"
+    
     if not args.quiet:
         print("=" * 70)
         print("🔍 CMP 인프라 정기점검 시작")
         print(f"   보고서 유형: {report_config.report_type}")
         print(f"   회사: {report_config.company_name}")
         print(f"   담당팀: {report_config.team_name}")
-        print(f"   점검 환경: {args.env.upper()}")
+        print(f"   점검 환경: {env_display}")
         print("=" * 70)
     
     checker = CMPInfraChecker(
