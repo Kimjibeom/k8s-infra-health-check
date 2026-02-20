@@ -85,15 +85,17 @@ class CMPInfraChecker:
                 else:
                     return CheckStatus.CRITICAL, f"즉시 조치 필요 ({numeric_value}개)"
             else:
-                # 임계치 판정: 임계치의 70% 미만 정상, 70~85% 경고, 85% 이상 위험
-                threshold_70 = threshold * 0.7
-                threshold_85 = threshold * 0.85
-                if numeric_value < threshold_70:
-                    return CheckStatus.OK, "정상 범위"
-                elif numeric_value < threshold_85:
-                    return CheckStatus.WARNING, f"임계치 근접 ({numeric_value:.1f}% / {threshold}%)"
+                # 'threshold'는 YAML에 정의된 '위험' 수준의 임계치입니다.
+                critical_level = float(threshold)
+                # '경고' 수준은 '위험' 수준의 90%로 설정합니다.
+                warning_level = critical_level * 0.9
+
+                if numeric_value >= critical_level:
+                    return CheckStatus.CRITICAL, f"임계치 초과 ({numeric_value:.1f}% / {critical_level}%)"
+                elif numeric_value >= warning_level:
+                    return CheckStatus.WARNING, f"임계치 근접 ({numeric_value:.1f}% / {critical_level}%)"
                 else:
-                    return CheckStatus.CRITICAL, f"임계치 초과 ({numeric_value:.1f}% / {threshold}%)"
+                    return CheckStatus.OK, "정상 범위"
                     
         except Exception:
             return CheckStatus.UNKNOWN, "값 파싱 실패"
@@ -724,8 +726,8 @@ class CMPInfraChecker:
     # ==========================================
     # 전체 점검 실행 (로직 흐름 제어)
     # ==========================================
-    def run_all_checks(self, env_filter: str = 'all') -> List[CheckResult]:
-        """모든 점검 실행 - Inventory 누락 시 Skip 처리. env_filter: dev|stg|prd|all"""
+    def run_all_checks(self, env_filter: str = 'all', cluster_filter: Optional[List[str]] = None) -> List[CheckResult]:
+        """모든 점검 실행 - Inventory 누락 시 Skip 처리. env_filter: dev|stg|prd|all. cluster_filter 지정 시 해당 클러스터만 점검."""
         self.results = []
         
         # 1. CI/CD 서비스 점검
@@ -746,16 +748,19 @@ class CMPInfraChecker:
         print("📋 SSL 인증서 점검 중...")
         self.results.extend(self.check_ssl_certs())
         
-        # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상 (각 Bastion에서 해당 인벤토리만 사용하는 시나리오)
+        # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상
         all_environments = [
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
         ]
-        # 인벤토리에 존재하는 클러스터만 필터
         clusters_in_inventory = [(k, l) for k, l in all_environments if self.executor.get_cluster_info(k)]
-        env_map = {'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'], 'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']}
-        allowed_keys = set(env_map.get(env_filter, env_map['all']))
+        # --cluster 지정 시 해당 클러스터만, 미지정 시 --env 기준
+        if cluster_filter:
+            allowed_keys = set(cluster_filter)
+        else:
+            env_map = {'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'], 'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']}
+            allowed_keys = set(env_map.get(env_filter, env_map['all']))
         environments = [(k, l) for k, l in clusters_in_inventory if k in allowed_keys]
 
         for cluster_key, label in environments:

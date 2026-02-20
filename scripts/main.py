@@ -54,16 +54,18 @@ def main():
     parser = argparse.ArgumentParser(description='CMP 인프라 정기점검 보고서 생성')
     
     parser.add_argument('--inventory', '-i',
-        default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'gpu-inventory.yaml'),
-        help='인벤토리 설정 파일 경로')
+        default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'inventory.yaml'),
+        help='인벤토리 설정 파일 경로 (기본: config/inventory.yaml)')
     parser.add_argument('--checks', '-c',
         default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'check_items.yaml'),
         help='점검 항목 설정 파일 경로')
     parser.add_argument('--type', '-t', choices=['weekly', 'monthly'], 
         default='weekly', help='보고서 유형')
     parser.add_argument('--output-dir', '-o', help='보고서 출력 디렉토리')
-    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'all'], 
-        default='all', help='점검할 환경 (기본: all)')
+    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'all'],
+        default='all', help='점검할 환경 (--cluster 미지정 시 사용, 기본: all)')
+    parser.add_argument('--cluster', action='append', default=None, metavar='CLUSTER',
+        help='점검할 클러스터 (복수 지정 가능, 예: --cluster dev_cluster --cluster stg_cluster). 지정 시 --env 무시')
     parser.add_argument('--json', action='store_true', help='JSON 형식 출력')
     parser.add_argument('--quiet', '-q', action='store_true', help='최소 출력')
     
@@ -96,7 +98,7 @@ def main():
         checks_path=args.checks
     )
     
-    results = checker.run_all_checks(env_filter=args.env)
+    results = checker.run_all_checks(env_filter=args.env, cluster_filter=args.cluster)
     
     if not results:
         if not args.quiet:
