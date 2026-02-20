@@ -743,7 +743,6 @@ class CMPInfraChecker:
         
         # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상
         all_environments = [
-            ('gpu_cluster', 'GPU 클러스터(GPU)'),  # 테스트용, 점검 후 삭제 예정
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
@@ -754,9 +753,8 @@ class CMPInfraChecker:
             allowed_keys = set(cluster_filter)
         else:
             env_map = {
-                'gpu': ['gpu_cluster'],
                 'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'],
-                'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']  # all에는 gpu 미포함 (테스트용)
+                'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']
             }
             allowed_keys = set(env_map.get(env_filter, env_map['all']))
         environments = [(k, l) for k, l in clusters_in_inventory if k in allowed_keys]

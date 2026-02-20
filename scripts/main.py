@@ -62,8 +62,8 @@ def main():
     parser.add_argument('--type', '-t', choices=['weekly', 'monthly'], 
         default='weekly', help='보고서 유형')
     parser.add_argument('--output-dir', '-o', help='보고서 출력 디렉토리')
-    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'gpu', 'all'],
-        default='all', help='점검할 환경 (--cluster 미지정 시 사용, gpu=테스트용)')
+    parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'all'],
+        default='all', help='점검할 환경 (--cluster 미지정 시 사용)')
     parser.add_argument('--cluster', action='append', default=None, metavar='CLUSTER',
         help='점검할 클러스터 (복수 지정 가능, 예: --cluster dev_cluster --cluster stg_cluster). 지정 시 --env 무시')
     parser.add_argument('--json', action='store_true', help='JSON 형식 출력')
