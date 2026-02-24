@@ -126,14 +126,6 @@ k8s_cluster_checks:
     threshold: 0
     unit: "개"
     severity: "critical"
-    
-  - id: K8S-007
-    name: "클러스터 버전"
-    description: "Kubernetes 클러스터 버전"
-    command: "kubectl version --short 2>/dev/null | grep Server | awk '{print $3}' || kubectl version 2>/dev/null | grep 'Server Version' | awk '{print $3}'"
-    threshold: null
-    unit: ""
-    severity: "info"
 
 # ============================================
 # K8s 서비스/워크로드 점검 항목

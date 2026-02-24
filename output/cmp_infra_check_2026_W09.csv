@@ -1,9 +1,9 @@
-﻿# 2026년 9주차 CMP 인프라 정기점검 보고서
+# 2026년 9주차 CMP 인프라 정기점검 보고서
 # 생성일시: 2026-02-24 17:12:03
 # 회사: CMP 인프라
 # 담당팀: 클라우드서비스팀
-# 총 점검항목: 98
-# 정상: 83 / 경고: 0 / 위험: 14 / 확인불가: 1
+# 총 점검항목: 97
+# 정상: 82 / 경고: 0 / 위험: 14 / 확인불가: 1
 
 점검ID,점검항목,카테고리,환경,점검대상,설명,상태,측정값,임계치,결과메시지,중요도,점검시간
 CICD-repo-Repository,Repository 서비스,CI/CD,CI/CD 인프라,Repo 서버,Repo 서버 Repository 서비스 상태,정상,TCP 80 Open,-,포트 응답 정상,critical,2026-02-24T17:11:07.787459
@@ -96,7 +96,6 @@ cilium-envoy-hpghk:Runn",-,모두 정상 (30/30),critical,2026-02-24T17:11:50.73
 K8S-005,Warning 이벤트,Kubernetes,DEV,DEV Cluster,최근 1시간 이내 Warning 이벤트 수 (현재 상태만 확인),정상,6,50개,정상 범위,medium,2026-02-24T17:11:50.809251
 K8S-006,NotReady 노드,Kubernetes,DEV,DEV Cluster,NotReady 상태 노드 수,정상,"0
 0",-,정상,critical,2026-02-24T17:11:50.879136
-K8S-007,클러스터 버전,Kubernetes,DEV,DEV Cluster,Kubernetes 클러스터 버전,정상,N/A,-,정보 수집 완료,info,2026-02-24T17:11:50.967161
 SVC-001,Deployment 상태,Services,DEV,DEV Services,모든 Deployment Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-02-24T17:11:51.050891
 SVC-002,StatefulSet 상태,Services,DEV,DEV Services,모든 StatefulSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-02-24T17:11:51.123705
 SVC-003,DaemonSet 상태,Services,DEV,DEV Services,모든 DaemonSet Ready 상태,정상,모두 정상,-,모든 리소스 정상,high,2026-02-24T17:11:51.196497
