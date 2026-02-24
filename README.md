@@ -257,7 +257,7 @@ report:
 ### 1. 프로젝트로 이동
 
 ```bash
-cd /path/to/gpu-infra-health-check
+cd /path/to/cmp-infra-health-check
 ```
 
 ---
@@ -359,7 +359,7 @@ ls -la output/
 
 | 순서 | 작업 | 명령어/확인 |
 |------|------|-------------|
-| 1 | 프로젝트 디렉터리로 이동 | `cd /path/to/gpu-infra-health-check` |
+| 1 | 프로젝트 디렉터리로 이동 | `cd /path/to/cmp-infra-health-check` |
 | 2 | 실행 권한 + 의존성 | `chmod +x cmp-infra-check.sh` / `pip3 install pyyaml python-docx` |
 | 3 | 인벤토리 설정 | `config/inventory.yaml` 편집 |
 | 4 | (선택) 환경변수 | `export SSH_USER=...` 등 |
@@ -527,7 +527,7 @@ chmod 700 logs/
 
 ## 📋 주간 보고용 수정 사항 요약
 
-- **단일 인벤토리 구조**: 클러스터별 파일(예: gpu-inventory.yaml, dev-inventory.yaml 등) 제거, `config/inventory.yaml` 한 파일로 통합.
+- **단일 인벤토리 구조**: 클러스터별 파일(예: prd-inventory.yaml, dev-inventory.yaml 등) 제거, `config/inventory.yaml` 한 파일로 통합.
 - **클러스터 지정 방식**: 실행 시 `-c`/`--cluster` 인자로 점검 대상 클러스터 지정 가능. 복수 클러스터 지정 및 `-e`/`--env`(dev/stg/prd/all) 유지.
 - **점검 환경 표시**: `--cluster` 사용 시 로그에 점검 대상 클러스터명(예: DEV_CLUSTER) 표시되도록 개선.
 - **SSL 인증서 도메인 설정**: 인벤토리 `report.ssl_domains` 또는 최상위 `ssl_domains`로 점검 대상 도메인 목록 설정 가이드 및 지원.
