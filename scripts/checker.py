@@ -468,7 +468,7 @@ class CMPInfraChecker:
         # 인벤토리 ssl_domains 또는 report.ssl_domains 사용, 없으면 기본 도메인
         target_domains = self.executor.get_ssl_domains()
         if not target_domains:
-            target_domains = ["google.com", "example.com"]
+            target_domains = ["example.com"]
         
         ssl_checks = self.checks_config.get('ssl_checks', [])
         if not ssl_checks: return results
