@@ -383,7 +383,7 @@ k8s_app_checks:
     name: "Traefik"
     category: "Ingress"
     description: "Traefik Ingress Controller 상태"
-    command: "kubectl get pods -n traefik -l app.kubernetes.io/name=traefik --no-headers | grep Running | wc -l"
+    command: "kubectl get pods -n traefik-system -l app.kubernetes.io/name=traefik --no-headers | grep Running | wc -l"
     threshold: 1
     unit: "개"
     severity: "critical"
