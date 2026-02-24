@@ -163,7 +163,8 @@ cmp-infra-check/
 │   ├── 📄 main.py               # 메인 실행 및 인자 처리
 │   ├── 📄 checker.py            # 점검 로직
 │   ├── 📄 ssh_executor.py       # SSH 연결 모듈
-│   └── 📄 report_generator.py   # CSV/DOCX 보고서 생성
+│   ├── 📄 report_generator.py   # CSV/DOCX 보고서 생성
+│   └── 📄 csv_to_docx.py        # output CSV → DOCX 변환
 │
 └── 📁 output/                   # 보고서 출력 (CSV, DOCX)
 ```
@@ -435,7 +436,8 @@ ssl_domains:
 
 3. **보고서**  
    - CSV/DOCX는 기본적으로 `output/` 아래에 `cmp_infra_check_YYYY_Wnn.csv`(주간) 또는 `cmp_infra_check_YYYY_MM.docx`(월간) 형식으로 생성됩니다.  
-   - `--output-dir`로 경로를 바꿀 수 있습니다.
+   - `--output-dir`로 경로를 바꿀 수 있습니다.  
+   - 이미 생성된 CSV만 있을 때 DOCX가 필요하면: `python3 scripts/csv_to_docx.py [CSV경로]` (경로 생략 시 `output/` 내 최신 CSV 사용).
 
 4. **환경변수**  
    - `SSH_USER`, `SSH_PRIVATE_KEY_PATH`, `CMP_INVENTORY_PATH` 등으로 SSH·인벤토리 경로를 오버라이드할 수 있습니다. (보안 섹션 참고.)
