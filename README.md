@@ -15,6 +15,7 @@
 - [프로젝트 구조](#-프로젝트-구조)
 - [설치](#-설치)
 - [설정](#️-설정)
+- [사용 가이드 (명령어 순서)](#-사용-가이드-명령어-순서)
 - [명령어 인자 (CLI 옵션)](#-명령어-인자-cli-옵션)
 - [사용법 및 클러스터별 실행](#-사용법-및-클러스터별-실행)
 - [SSL 인증서 도메인 설정](#-ssl-인증서-도메인-설정)
@@ -244,6 +245,127 @@ report:
   output_dir: "./output"
   # ssl_domains: [ "your-app.example.com" ]   # SSL 점검 대상 도메인 (선택)
 ```
+
+---
+
+## 📘 사용 가이드
+
+아래는 스크립트를 처음 사용할 때 **실행 순서대로** 따라하면 되는 가이드입니다. 이미 설치·설정이 되어 있다면 [4. 점검 실행](#4-점검-실행)부터 보면 됩니다.
+
+---
+
+### 1. 프로젝트로 이동
+
+```bash
+cd /path/to/gpu-infra-health-check
+```
+
+---
+
+### 2. 설치 (최초 1회)
+
+```bash
+# 실행 권한 부여
+chmod +x cmp-infra-check.sh
+
+# Python 의존성 설치 (pyyaml, python-docx)
+pip3 install pyyaml python-docx
+```
+
+---
+
+### 3. 설정 (최초 1회 또는 변경 시)
+
+```bash
+# 인벤토리 편집 (IP, 호스트명, SSH 사용자 등)
+vi config/inventory.yaml
+# 또는
+nano config/inventory.yaml
+```
+
+- `cicd_servers`, `dev_cluster`, `stg_cluster`, `prd_cluster`, `ssh_config`, `report` 섹션을 실제 환경에 맞게 수정합니다.
+- SSL 인증서 점검 도메인을 쓰려면 `report.ssl_domains` 또는 최상위 `ssl_domains`에 도메인 목록을 추가합니다. (자세한 내용은 [SSL 인증서 도메인 설정](#-ssl-인증서-도메인-설정) 참고.)
+
+**(선택) 환경변수로 SSH/인벤토리 지정**
+
+```bash
+export SSH_USER="root"
+export SSH_PRIVATE_KEY_PATH="$HOME/.ssh/id_rsa"
+export CMP_INVENTORY_PATH="/path/to/cmp-infra-health-check/config/inventory.yaml"
+```
+
+---
+
+### 4. 점검 실행
+
+**도움말 확인**
+
+```bash
+./cmp-infra-check.sh --help
+```
+
+**전체 클러스터 점검 (주간 보고서)**
+
+```bash
+./cmp-infra-check.sh
+```
+
+**월간 보고서로 실행**
+
+```bash
+./cmp-infra-check.sh --type monthly
+```
+
+**특정 클러스터만 점검 (각 Bastion에서 실행 권장)**
+
+```bash
+# 개발 Bastion에서
+./cmp-infra-check.sh --cluster dev_cluster
+
+# 스테이징 Bastion에서
+./cmp-infra-check.sh --cluster stg_cluster
+
+# 운영 Bastion에서
+./cmp-infra-check.sh --cluster prd_cluster
+```
+
+**출력 디렉토리 지정**
+
+```bash
+./cmp-infra-check.sh -o /var/reports/cmp-check
+```
+
+**최소 출력 + JSON만**
+
+```bash
+./cmp-infra-check.sh -q --json
+```
+
+---
+
+### 5. 결과 확인
+
+```bash
+# 보고서 파일 위치 (기본)
+ls -la output/
+
+# 주간: cmp_infra_check_YYYY_Wnn.csv, cmp_infra_check_YYYY_Wnn.docx
+# 월간: cmp_infra_check_YYYY_MM.csv, cmp_infra_check_YYYY_MM.docx
+```
+
+---
+
+### 요약 체크리스트
+
+| 순서 | 작업 | 명령어/확인 |
+|------|------|-------------|
+| 1 | 프로젝트 디렉터리로 이동 | `cd /path/to/gpu-infra-health-check` |
+| 2 | 실행 권한 + 의존성 | `chmod +x cmp-infra-check.sh` / `pip3 install pyyaml python-docx` |
+| 3 | 인벤토리 설정 | `config/inventory.yaml` 편집 |
+| 4 | (선택) 환경변수 | `export SSH_USER=...` 등 |
+| 5 | 점검 실행 | `./cmp-infra-check.sh` 또는 `--cluster` / `--env` 조합 |
+| 6 | 결과 확인 | `ls output/` |
+| 7 | (선택) Cron 등록 | `crontab -e` 에 스케줄 추가 |
 
 ---
 
