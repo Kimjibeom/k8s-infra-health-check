@@ -64,15 +64,14 @@ check_dependencies () {
     package_map["pyyaml"]="yaml"
     package_map["python-docx"]="docx"
 
-    # 3. 패키지 확인 및 설치
+    # 3. 패키지 설치 여부 확인
     for pkg in "${!package_map[@]}"; do
         module_name="${package_map[$pkg]}"
         
         # 찾은 실행 파일 ($PYTHON_EXE) 로 모듈 확인
         if ! "$PYTHON_EXE" -c "import ${module_name}" 2>/dev/null; then
-            log_warning "${pkg} (모듈명: ${module_name}) 패키지가 없습니다. 설치 중..."
-            "$PYTHON_EXE" -m pip install ${pkg} --quiet 2>/dev/null || \
-            log_warning "${pkg} 설치 실패. 인터넷 연결이나 권한을 확인하세요."
+            log_error "${pkg} (모듈명: ${module_name}) 패키지가 설치되어 있지 않습니다.
+            exit 1
         fi
     done
     
