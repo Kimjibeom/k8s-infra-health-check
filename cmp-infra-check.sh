@@ -70,7 +70,7 @@ check_dependencies () {
         
         # 찾은 실행 파일 ($PYTHON_EXE) 로 모듈 확인
         if ! "$PYTHON_EXE" -c "import ${module_name}" 2>/dev/null; then
-            log_error "${pkg} (모듈명: ${module_name}) 패키지가 설치되어 있지 않습니다.
+            log_error "${pkg} (모듈명: ${module_name}) 패키지가 설치되어 있지 않습니다."
             exit 1
         fi
     done

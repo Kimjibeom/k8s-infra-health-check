@@ -258,7 +258,7 @@ class RemoteExecutor:
                 })
         
         # 클러스터별 서버
-        for cluster_key in ['dev_cluster', 'stg_cluster', 'prd_cluster']:
+        for cluster_key in ['gpu_cluster', 'dev_cluster', 'stg_cluster', 'prd_cluster']:
             cluster = self.inventory.get(cluster_key, {})
             if not cluster: continue
             

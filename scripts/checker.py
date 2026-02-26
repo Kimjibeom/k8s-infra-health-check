@@ -62,9 +62,9 @@ class CMPInfraChecker:
         except FileNotFoundError:
             return {}
     
-    def _evaluate_threshold(self, value: str, threshold: float, 
-                           check_id: str) -> Tuple[CheckStatus, str]:
-        """임계치 기반 상태 평가"""
+    def _evaluate_threshold(self, value: str, threshold: float,
+                           check_id: str, unit: str = '%') -> Tuple[CheckStatus, str]:
+        """임계치 기반 상태 평가. unit에 따라 메시지 포맷: %(비율), 개(개수), 그 외(숫자만, 예: 로드)"""
         try:
             clean_val = str(value).replace('%', '').replace('개', '').strip()
             match = re.search(r'(\d+(\.\d+)?)', clean_val)
@@ -74,7 +74,7 @@ class CMPInfraChecker:
                 
             numeric_value = float(match.group(1))
             
-            zero_is_ok = ['OS-005', 'K8S-006', 'SVC-004', 
+            zero_is_ok = ['OS-005', 'K8S-006', 'SVC-004',
                           'SVC-006', 'SVC-007', 'SVC-008', 'SVC-010']
             
             if check_id in zero_is_ok:
@@ -85,15 +85,20 @@ class CMPInfraChecker:
                 else:
                     return CheckStatus.CRITICAL, f"즉시 조치 필요 ({numeric_value}개)"
             else:
-                # 'threshold'는 YAML에 정의된 '위험' 수준의 임계치입니다.
                 critical_level = float(threshold)
-                # '경고' 수준은 '위험' 수준의 90%로 설정합니다.
                 warning_level = critical_level * 0.9
 
+                if unit == '%':
+                    val_fmt, th_fmt = f"{numeric_value:.1f}%", f"{critical_level}%"
+                elif unit == '개':
+                    val_fmt, th_fmt = f"{int(numeric_value)}개", f"{int(critical_level)}개"
+                else:
+                    val_fmt, th_fmt = f"{numeric_value:.1f}", f"{critical_level}"
+
                 if numeric_value >= critical_level:
-                    return CheckStatus.CRITICAL, f"임계치 초과 ({numeric_value:.1f}% / {critical_level}%)"
+                    return CheckStatus.CRITICAL, f"임계치 초과 ({val_fmt} / {th_fmt})"
                 elif numeric_value >= warning_level:
-                    return CheckStatus.WARNING, f"임계치 근접 ({numeric_value:.1f}% / {critical_level}%)"
+                    return CheckStatus.WARNING, f"임계치 근접 ({val_fmt} / {th_fmt})"
                 else:
                     return CheckStatus.OK, "정상 범위"
                     
@@ -164,7 +169,7 @@ class CMPInfraChecker:
         threshold = check.get('threshold')
         
         if threshold is not None:
-            status, message = self._evaluate_threshold(value, threshold, check_id)
+            status, message = self._evaluate_threshold(value, threshold, check_id, check.get('unit', '%'))
         else:
             status = CheckStatus.OK
             message = "정보 수집 완료"
@@ -226,7 +231,7 @@ class CMPInfraChecker:
         if expected:
             status, message = self._evaluate_expected(value, expected)
         elif threshold is not None:
-            status, message = self._evaluate_threshold(value, threshold, check_id)
+            status, message = self._evaluate_threshold(value, threshold, check_id, check.get('unit', '%'))
         else:
             status = CheckStatus.OK
             message = "정보 수집 완료"
@@ -351,7 +356,7 @@ class CMPInfraChecker:
                 value = "모두 정상"
                 message = "모든 리소스 정상"
         elif threshold is not None:
-            status, message = self._evaluate_threshold(value or '0', threshold, check_id)
+            status, message = self._evaluate_threshold(value or '0', threshold, check_id, check.get('unit', '%'))
         else:
             status = CheckStatus.OK
             message = "정보 수집 완료"
@@ -747,6 +752,7 @@ class CMPInfraChecker:
         
         # 2. 클러스터 점검: 인벤토리에 정의된 클러스터만 대상
         all_environments = [
+            ('gpu_cluster', 'GPU 클러스터(GPU)'),
             ('dev_cluster', '개발 클러스터(DEV)'),
             ('stg_cluster', '스테이징 클러스터(STG)'),
             ('prd_cluster', '운영 클러스터(PRD)')
@@ -757,8 +763,9 @@ class CMPInfraChecker:
             allowed_keys = set(cluster_filter)
         else:
             env_map = {
+                'gpu': ['gpu_cluster'],
                 'dev': ['dev_cluster'], 'stg': ['stg_cluster'], 'prd': ['prd_cluster'],
-                'all': ['dev_cluster', 'stg_cluster', 'prd_cluster']
+                'all': ['gpu_cluster', 'dev_cluster', 'stg_cluster', 'prd_cluster']
             }
             allowed_keys = set(env_map.get(env_filter, env_map['all']))
         environments = [(k, l) for k, l in clusters_in_inventory if k in allowed_keys]
