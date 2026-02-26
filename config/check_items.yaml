@@ -253,8 +253,22 @@ database_checks:
 
 # ============================================
 # NFS 스토리지 점검 항목
+# applicable_clusters: 해당 클러스터에서만 점검 (미지정 시 모든 클러스터)
+# DEV/STG: Bastion에 마운트된 디렉토리 용량만 점검
+# PRD: 별도 NFS 서버 마운트/포트 점검
 # ============================================
 storage_checks:
+  # DEV/STG 전용: Bastion 디렉토리 용량 (예시: /tmp, 실제 경로는 인벤토리 또는 여기서 변경)
+  - id: STG-DIR-01
+    name: "스토리지(디렉토리) 용량"
+    description: "Bastion NFS 마운트 디렉토리 용량 확인"
+    command: "df -h /tmp"
+    applicable_clusters:
+      - dev_cluster
+      - stg_cluster
+    severity: "high"
+
+  # PRD 전용: 별도 NFS 서버 점검
   - id: STG-001
     name: "NFS 마운트 상태"
     description: "NFS 마운트 포인트 확인"
@@ -262,13 +276,17 @@ storage_checks:
     threshold: 1
     unit: "개"
     severity: "critical"
-    
+    applicable_clusters:
+      - prd_cluster
+
   - id: STG-002
     name: "NFS 서비스 포트"
     description: "NFS 서비스 포트(2049) 응답 확인"
     check_type: "tcp_port"
     port: 2049
     severity: "critical"
+    applicable_clusters:
+      - prd_cluster
 
 # ============================================
 # K8s 애플리케이션 점검

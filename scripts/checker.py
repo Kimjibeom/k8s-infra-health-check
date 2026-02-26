@@ -594,6 +594,10 @@ class CMPInfraChecker:
         storage_host = masters[0].get('ip', '127.0.0.1') if masters else '127.0.0.1'
 
         for check in storage_checks:
+            # applicable_clusters 미지정 시 모든 클러스터, 지정 시 해당 클러스터에서만 점검 (--cluster별 분기)
+            applicable = check.get('applicable_clusters')
+            if applicable is not None and cluster_key not in applicable:
+                continue
             check_id = check.get('id', '')
             if check.get('check_type') == 'tcp_port':
                 port = check.get('port')
@@ -620,11 +624,11 @@ class CMPInfraChecker:
                                 message = "스토리지 할당 현황"
                         else:
                             status = CheckStatus.OK
-                            message = "스토리지 할당 현황"
+                            message = "스토리지 용량 현황"
                     else:
                         value = "0"
                         status = CheckStatus.CRITICAL if (check.get('threshold') or 0) > 0 else CheckStatus.OK
-                        message = "NFS 마운트 없음"
+                        message = "NFS 마운트 없음" if check.get('threshold') is not None else "용량 조회 없음"
                 else:
                     value = "N/A"
                     status = CheckStatus.UNKNOWN
