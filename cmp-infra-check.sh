@@ -8,7 +8,7 @@ set -e
 
 # 스크립트 경로 설정
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_SCRIPT="${SCRIPT_DIR}/scripts/main.py" 
+PYTHON_SCRIPT="${SCRIPT_DIR}/scripts/main.py"
 INVENTORY_FILE="${SCRIPT_DIR}/config/inventory.yaml"
 CHECKS_FILE="${SCRIPT_DIR}/config/check_items.yaml"
 OUTPUT_DIR="${SCRIPT_DIR}/output"
@@ -118,49 +118,28 @@ check_ssh_key() {
 }
 
 # 도움말
-
 show_help() {
-
     cat << EOF
 
 CMP 인프라 정기점검 보고서 생성기
 
-
-
 사용법:
-
     $0 [옵션]
 
-
-
 옵션:
-
     -c, --cluster <클러스터명>     점검할 클러스터 (복수 지정 가능, 예: -c dev_cluster -c stg_cluster). 미지정 시 -e 환경 전체
-
     -t, --type <weekly|monthly>    보고서 유형 (기본: weekly)
-
     -e, --env <dev|stg|prd|all>    점검할 환경 (기본: all)
-
     -o, --output-dir <경로>        보고서 출력 디렉토리
-
     --json                         JSON 형식 출력
-
     -q, --quiet                    최소 출력
-
     -h, --help                     도움말 표시
 
-
-
 EOF
-
 }
 
-
-
 # 메인 실행
-
 main() {
-
     # 인수를 구문 분석하여 셸 스크립트용 인수와 Python 스크립트용 인수를 분리합니다.
     PYTHON_ARGS=()
     CLUSTER_ARGS=()
@@ -183,37 +162,19 @@ main() {
         esac
     done
 
-    
-
-    # 여기서부터 실제 메인 로직 시작
-
     echo ""
-
     echo "================================================================"
-
     echo "  🔍 CMP 인프라 정기점검 시스템"
-
     echo "  $(date '+%Y-%m-%d %H:%M:%S')"
-
     echo "================================================================"
-
     echo ""
-
-    
 
     check_dependencies
-
     check_config_files # 이 함수는 이제 INVENTORY_FILE 변수에 의존합니다.
-
     setup_output_dir
-
     check_ssh_key
 
-
-
     log_info "사용할 인벤토리 파일: ${INVENTORY_FILE}"
-
-    
 
     # Python 스크립트 실행
     # 이제 PYTHON_ARGS 배열을 사용하여 Python 스크립트로 인수를 전달합니다.
@@ -227,32 +188,17 @@ main() {
     local exit_code=$?
     set -e
 
-    
-
     echo ""
-
     if [ $exit_code -eq 0 ]; then
-
         log_success "점검 완료: 모든 항목 정상"
-
     elif [ $exit_code -eq 1 ]; then
-
         log_warning "점검 완료: 경고 항목 발견"
-
     else
-
         log_error "점검 완료: 위험 항목 발견 또는 실행 오류"
-
     fi
 
-    
-
     exit $exit_code
-
 }
 
-
-
 # 스크립트에 전달된 모든 인수를 사용하여 main 함수를 호출합니다.
-
 main "$@"
