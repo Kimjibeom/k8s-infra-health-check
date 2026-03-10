@@ -346,23 +346,6 @@ ssh_config:
   command_timeout: 30
 
 # ============================================
-# 알림 설정
-# ============================================
-notifications:
-  slack:
-    enabled: false
-    webhook_url: "${SLACK_WEBHOOK_URL}"
-    channel: "#cmp-infra-alerts"
-    
-  email:
-    enabled: false
-    smtp_server: "smtp.example.com"
-    smtp_port: 587
-    sender: "infra-check@example.com"
-    recipients:
-      - "admin@example.com"
-
-# ============================================
 # 보고서 설정
 # ============================================
 report:

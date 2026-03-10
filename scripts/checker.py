@@ -11,7 +11,6 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any, Tuple
 from enum import Enum
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ssh_executor 모듈이 같은 경로에 있다고 가정
 from ssh_executor import get_executor, RemoteExecutor, ConnectionResult
@@ -62,46 +61,62 @@ class CMPInfraChecker:
         except FileNotFoundError:
             return {}
     
+    def _parse_numeric(self, raw: str) -> Optional[float]:
+        """문자열에서 첫 번째 숫자를 추출. 파싱 실패 시 None 반환."""
+        clean = raw.replace('%', '').replace('개', '').strip()
+        m = re.search(r'(\d+(\.\d+)?)', clean)
+        return float(m.group(1)) if m else None
+
     def _evaluate_threshold(self, value: str, threshold: float,
                            check_id: str, unit: str = '%') -> Tuple[CheckStatus, str]:
-        """임계치 기반 상태 평가. unit에 따라 메시지 포맷: %(비율), 개(개수), 그 외(숫자만, 예: 로드)"""
+        """임계치 기반 상태 평가. unit에 따라 메시지 포맷: %(비율), 개(개수), 그 외(숫자만, 예: 로드).
+        멀티라인 입력(node1:val 형식) 시 모든 라인을 평가하여 worst case 기준으로 판정."""
         try:
-            clean_val = str(value).replace('%', '').replace('개', '').strip()
-            match = re.search(r'(\d+(\.\d+)?)', clean_val)
-            
-            if not match:
+            lines = [l.strip() for l in str(value).strip().split('\n') if l.strip()]
+            if not lines:
                 return CheckStatus.UNKNOWN, "값 파싱 실패"
-                
-            numeric_value = float(match.group(1))
-            
+
+            numeric_values = []
+            for line in lines:
+                parts = line.rsplit(':', 1)
+                raw = parts[-1] if len(parts) > 1 else line
+                n = self._parse_numeric(raw)
+                if n is not None:
+                    numeric_values.append(n)
+
+            if not numeric_values:
+                return CheckStatus.UNKNOWN, "값 파싱 실패"
+
             zero_is_ok = ['OS-005', 'K8S-006', 'SVC-004',
                           'SVC-006', 'SVC-007', 'SVC-008', 'SVC-010']
-            
+
             if check_id in zero_is_ok:
-                if numeric_value == 0:
+                total = sum(numeric_values)
+                if total == 0:
                     return CheckStatus.OK, "정상"
-                elif numeric_value <= 3:
-                    return CheckStatus.WARNING, f"주의 필요 ({numeric_value}개)"
+                elif total <= 3:
+                    return CheckStatus.WARNING, f"주의 필요 ({int(total)}개)"
                 else:
-                    return CheckStatus.CRITICAL, f"즉시 조치 필요 ({numeric_value}개)"
+                    return CheckStatus.CRITICAL, f"즉시 조치 필요 ({int(total)}개)"
             else:
+                worst = max(numeric_values)
                 critical_level = float(threshold)
                 warning_level = critical_level * 0.9
 
                 if unit == '%':
-                    val_fmt, th_fmt = f"{numeric_value:.1f}%", f"{critical_level}%"
+                    val_fmt, th_fmt = f"{worst:.1f}%", f"{critical_level}%"
                 elif unit == '개':
-                    val_fmt, th_fmt = f"{int(numeric_value)}개", f"{int(critical_level)}개"
+                    val_fmt, th_fmt = f"{int(worst)}개", f"{int(critical_level)}개"
                 else:
-                    val_fmt, th_fmt = f"{numeric_value:.1f}", f"{critical_level}"
+                    val_fmt, th_fmt = f"{worst:.1f}", f"{critical_level}"
 
-                if numeric_value >= critical_level:
+                if worst >= critical_level:
                     return CheckStatus.CRITICAL, f"임계치 초과 ({val_fmt} / {th_fmt})"
-                elif numeric_value >= warning_level:
+                elif worst >= warning_level:
                     return CheckStatus.WARNING, f"임계치 근접 ({val_fmt} / {th_fmt})"
                 else:
                     return CheckStatus.OK, "정상 범위"
-                    
+
         except Exception:
             return CheckStatus.UNKNOWN, "값 파싱 실패"
     
@@ -470,10 +485,10 @@ class CMPInfraChecker:
     # ==========================================
     def check_ssl_certs(self) -> List[CheckResult]:
         results = []
-        # 인벤토리 ssl_domains 또는 report.ssl_domains 사용, 없으면 기본 도메인
         target_domains = self.executor.get_ssl_domains()
         if not target_domains:
-            target_domains = ["example.com"]
+            print("⚠️  [Skip] SSL 점검 대상 도메인이 설정되지 않았습니다. (inventory.yaml의 ssl_domains 설정 필요)")
+            return results
         
         ssl_checks = self.checks_config.get('ssl_checks', [])
         if not ssl_checks: return results
@@ -564,20 +579,39 @@ class CMPInfraChecker:
         for check in sw_checks:
             if "kubectl" not in check['command']: continue
             res = self.executor.execute_local(check['command'])
+
+            if not res.success:
+                results.append(CheckResult(
+                    check_id=check['id'], name=check['name'],
+                    category="SW Version", subcategory=env_name,
+                    description=check['description'], status=CheckStatus.UNKNOWN,
+                    value="N/A", threshold=None, unit="",
+                    message=res.error_message or "kubectl 실행 실패",
+                    target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
+                ))
+                continue
+
             raw_value = res.stdout.strip()
+            if not raw_value:
+                results.append(CheckResult(
+                    check_id=check['id'], name=check['name'],
+                    category="SW Version", subcategory=env_name,
+                    description=check['description'], status=CheckStatus.WARNING,
+                    value="0", threshold=None, unit="개",
+                    message="조회 결과 없음",
+                    target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
+                ))
+                continue
+
             lines = raw_value.split('\n')
             count = len(lines)
-            value = f"총 {count}개 이미지 (상세 생략)" 
+            value = f"총 {count}개 이미지 (상세 생략)"
 
             results.append(CheckResult(
-                check_id=check['id'],
-                name=check['name'],
-                category="SW Version",
-                subcategory=env_name,
-                description=check['description'],
-                status=CheckStatus.OK,
-                value=value, # 전체 리스트 대신 요약본 출력
-                threshold=None, unit="개", 
+                check_id=check['id'], name=check['name'],
+                category="SW Version", subcategory=env_name,
+                description=check['description'], status=CheckStatus.OK,
+                value=value, threshold=None, unit="개",
                 message=f"이미지 {count}개 추출 완료",
                 target=f"{env_name} Cluster", severity=check.get('severity', 'medium')
             ))

@@ -216,19 +216,16 @@ main() {
     
 
     # Python 스크립트 실행
-
     # 이제 PYTHON_ARGS 배열을 사용하여 Python 스크립트로 인수를 전달합니다.
-
+    set +e
     "$PYTHON_EXE" "${PYTHON_SCRIPT}" \
         --inventory "${INVENTORY_FILE}" \
         --checks "${CHECKS_FILE}" \
         --output-dir "${OUTPUT_DIR}" \
         "${CLUSTER_ARGS[@]}" \
         "${PYTHON_ARGS[@]}"
-
-    
-
     local exit_code=$?
+    set -e
 
     
 
