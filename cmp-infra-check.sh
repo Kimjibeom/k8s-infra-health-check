@@ -62,7 +62,6 @@ check_dependencies () {
     # 2. 패키지명과 import명이 다른 경우 매핑 처리
     declare -A package_map
     package_map["pyyaml"]="yaml"
-    package_map["python-docx"]="docx"
 
     # 3. 패키지 설치 여부 확인
     for pkg in "${!package_map[@]}"; do
