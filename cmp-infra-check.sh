@@ -44,20 +44,20 @@ check_dependencies () {
     log_info "의존성 확인 중..."
     
     # 1. 사용 가능한 Python 실행 파일 찾기 (최신 버전 우선 탐색)
-    PYTHON_EXE=""
+    local found_python=""
     for cmd in python3.11 python3.10 python3.9 python3; do
         if command -v "$cmd" &> /dev/null; then
-            PYTHON_EXE=$(command -v "$cmd")
+            found_python=$(command -v "$cmd")
             break
         fi
     done
 
-    if [ -z "$PYTHON_EXE" ]; then
-        log_error "Python3 (3.9 이상 권장) 이 설치되어 있지 않습니다."
-        exit 1
+    if [ -z "$found_python" ]; then
+        log_error "Python3: 미설치 (3.9 이상 권장)"
+    else
+        PYTHON_EXE="$found_python"
+        log_success "Python3: 설치됨 ($($PYTHON_EXE --version))"
     fi
-
-    log_info "사용 중인 Python: $($PYTHON_EXE --version) ($PYTHON_EXE)"
 
     # 2. 패키지명과 import명이 다른 경우 매핑 처리
     declare -A package_map
@@ -67,14 +67,16 @@ check_dependencies () {
     for pkg in "${!package_map[@]}"; do
         module_name="${package_map[$pkg]}"
         
-        # 찾은 실행 파일 ($PYTHON_EXE) 로 모듈 확인
-        if ! "$PYTHON_EXE" -c "import ${module_name}" 2>/dev/null; then
-            log_error "${pkg} (모듈명: ${module_name}) 패키지가 설치되어 있지 않습니다."
-            exit 1
+        if [ -n "$found_python" ]; then
+            if "$found_python" -c "import ${module_name}" 2>/dev/null; then
+                log_success "${pkg}: 설치됨"
+            else
+                log_error "${pkg}: 미설치 (모듈명: ${module_name})"
+            fi
+        else
+            log_error "${pkg}: 확인 불가능 (Python 미설치)"
         fi
     done
-    
-    log_success "의존성 확인 완료"
 }
 
 # 설정 파일 확인
