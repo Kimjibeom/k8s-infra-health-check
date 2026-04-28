@@ -23,7 +23,7 @@ except ImportError:
 @dataclass
 class ReportConfig:
     """보고서 설정"""
-    report_type: str = "weekly"
+    report_type: str = "monthly"
     company_name: str = "CMP 인프라"
     team_name: str = "클라우드서비스팀"
     output_dir: str = "./output"

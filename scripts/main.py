@@ -43,7 +43,7 @@ def create_report_config(inventory: dict, report_type: str, output_dir: str = No
     report_conf = inventory.get('report', {})
     
     return ReportConfig(
-        report_type=report_type or report_conf.get('type', 'weekly'),
+        report_type=report_type or report_conf.get('type', 'monthly'),
         company_name=report_conf.get('company_name', 'CMP 인프라'),
         team_name=report_conf.get('team_name', '클라우드서비스팀'),
         output_dir=output_dir or report_conf.get('output_dir', './output')
@@ -60,7 +60,7 @@ def main():
         default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'check_items.yaml'),
         help='점검 항목 설정 파일 경로')
     parser.add_argument('--type', '-t', choices=['weekly', 'monthly'], 
-        default='weekly', help='보고서 유형')
+        default='monthly', help='보고서 유형')
     parser.add_argument('--output-dir', '-o', help='보고서 출력 디렉토리')
     parser.add_argument('--env', '-e', choices=['dev', 'stg', 'prd', 'gpu', 'all'],
         default='all', help='점검할 환경 (--cluster 미지정 시 사용)')

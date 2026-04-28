@@ -129,7 +129,7 @@ CMP 인프라 정기점검 보고서 생성기
 
 옵션:
     -c, --cluster <클러스터명>     점검할 클러스터 (복수 지정 가능, 예: -c dev_cluster -c stg_cluster). 미지정 시 -e 환경 전체
-    -t, --type <weekly|monthly>    보고서 유형 (기본: weekly)
+    -t, --type <weekly|monthly>    보고서 유형 (기본: monthly)
     -e, --env <dev|stg|prd|all>    점검할 환경 (기본: all)
     -o, --output-dir <경로>        보고서 출력 디렉토리
     --json                         JSON 형식 출력
