@@ -377,7 +377,7 @@ ls -la output/
 | 옵션 | 설명 | 기본값 |
 |------|------|--------|
 | `-c`, `--cluster <클러스터명>` | 점검할 클러스터. 복수 지정 가능 (예: `-c dev_cluster -c stg_cluster`). 지정 시 `--env` 무시 | 없음 |
-| `-t`, `--type <weekly\|monthly>` | 보고서 유형 | `weekly` |
+| `-t`, `--type <weekly\|monthly>` | 보고서 유형 | `monthly` |
 | `-e`, `--env <dev\|stg\|prd\|all>` | 점검할 환경. `--cluster` 미지정 시에만 사용 | `all` |
 | `-o`, `--output-dir <경로>` | 보고서 출력 디렉토리 | `./output` |
 | `--json` | 결과를 JSON으로만 출력 (보고서 파일 미생성) | - |
@@ -531,7 +531,7 @@ chmod 700 logs/
 ```
 ======================================================================
 🔍 CMP 인프라 정기점검 시작
-   보고서 유형: weekly
+   보고서 유형: monthly
    회사: CMP 인프라
    담당팀: 클라우드서비스팀
    점검 환경: ALL
