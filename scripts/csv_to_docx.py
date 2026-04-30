@@ -13,7 +13,6 @@ import sys
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
-# 프로젝트 루트 또는 scripts에서 실행 시 import 경로 보정
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 _root = os.path.dirname(_script_dir)
 if _root not in sys.path:
@@ -62,7 +61,6 @@ def parse_csv_metadata(lines: List[str]) -> Tuple[Dict, List[str]]:
                     metadata['critical'] = int(m.group(3))
                     metadata['unknown'] = int(m.group(4))
             else:
-                # 제목 라인 (첫 번째 유의미한 # 라인으로 가정)
                 if s and not metadata['title']:
                     metadata['title'] = s
             continue
@@ -81,7 +79,6 @@ def load_csv_results(filepath: str) -> Tuple[List[Dict], Dict, Dict]:
 
     metadata, rest = parse_csv_metadata(all_lines)
 
-    # 빈 줄 건너뛰기
     rest = [line for line in rest if line.strip()]
     if not rest:
         return [], _build_summary([], metadata), metadata
