@@ -3,7 +3,7 @@
 
 **CMP (Cloud Management Platform) 인프라 자동화 점검 도구**
 
-개발(DEV), 스테이징(STG), 운영(PRD) 환경의 OS, Kubernetes 클러스터, K8s 서비스, CI/CD 인프라, 데이터베이스를 자동으로 점검하고 CSV/DOCX 보고서를 생성합니다. **단일 인벤토리 파일(`config/inventory.yaml`)을 사용하며, 실행 시 `--cluster` 또는 `--env` 인자로 점검 대상 클러스터를 지정합니다.**
+개발(DEV), 스테이징(STG), 운영(PRD) 환경의 OS, Kubernetes 클러스터, K8s 서비스, CI/CD 인프라, 데이터베이스를 자동으로 점검하고 CSV/DOCX 보고서를 생성합니다. **인벤토리 파일(`config/inventory.yaml`)을 사용하며, 실행 시 `--cluster` 또는 `--env` 인자로 점검 대상 클러스터를 지정합니다.**
 
 ---
 
@@ -156,7 +156,7 @@ cmp-infra-check/
 ├── 📄 README.md                 # 프로젝트 문서
 │
 ├── 📁 config/                   # 설정 파일
-│   ├── 📄 inventory.yaml        # 🔒 단일 인벤토리 (전 클러스터 + CI/CD + SSH/보고서 설정)
+│   ├── 📄 inventory.yaml        # 🔒 인벤토리 (전 클러스터 + CI/CD + SSH/보고서 설정)
 │   └── 📄 check_items.yaml      # 점검 항목 정의
 │
 ├── 📁 scripts/                  # Python 스크립트
@@ -191,7 +191,7 @@ pip3 install pyyaml python-docx
 
 ## ⚙️ 설정
 
-### config/inventory.yaml (단일 인벤토리, 보안 중요!)
+### config/inventory.yaml (인벤토리, 보안 중요!)
 
 모든 클러스터·CI/CD·SSH·보고서 설정은 **한 파일(`config/inventory.yaml`)에만** 정의합니다. 클러스터별로 파일을 나누지 않습니다.
 
@@ -529,7 +529,7 @@ chmod 700 logs/
 
 ## 📋 주간 보고용 수정 사항 요약
 
-- **단일 인벤토리 구조**: 클러스터별 파일(예: prd-inventory.yaml, dev-inventory.yaml 등) 제거, `config/inventory.yaml` 한 파일로 통합.
+- **인벤토리 구조**: 클러스터별 파일(예: prd-inventory.yaml, dev-inventory.yaml 등) 제거, `config/inventory.yaml` 한 파일로 통합.
 - **클러스터 지정 방식**: 실행 시 `-c`/`--cluster` 인자로 점검 대상 클러스터 지정 가능. 복수 클러스터 지정 및 `-e`/`--env`(dev/stg/prd/all) 유지.
 - **점검 환경 표시**: `--cluster` 사용 시 로그에 점검 대상 클러스터명(예: DEV_CLUSTER) 표시되도록 개선.
 - **SSL 인증서 도메인 설정**: 인벤토리 `report.ssl_domains` 또는 최상위 `ssl_domains`로 점검 대상 도메인 목록 설정 가이드 및 지원.
