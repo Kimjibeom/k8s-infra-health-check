@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CMP 인프라 점검 보고서 생성 모듈
+k8s 클러스터 점검 보고서 생성 모듈
 CSV 및 DOCX 형식 보고서 생성
 """
 
@@ -24,13 +24,13 @@ except ImportError:
 class ReportConfig:
     """보고서 설정"""
     report_type: str = "monthly"
-    company_name: str = "CMP 인프라"
+    company_name: str = "k8s 클러스터"
     team_name: str = "클라우드서비스팀"
     output_dir: str = "./output"
 
 
-class CMPReportGenerator:
-    """CMP 보고서 생성기"""
+class K8SReportGenerator:
+    """k8s 보고서 생성기"""
     
     def __init__(self, config: ReportConfig = None):
         self.config = config or ReportConfig()
@@ -40,17 +40,17 @@ class CMPReportGenerator:
         now = datetime.now()
         if self.config.report_type == "weekly":
             week_num = now.isocalendar()[1]
-            return f"{now.year}년 {week_num}주차 CMP 인프라 정기점검 보고서"
+            return f"{now.year}년 {week_num}주차 k8s 클러스터 정기점검 보고서"
         else:
-            return f"{now.year}년 {now.month}월 CMP 인프라 정기점검 보고서"
+            return f"{now.year}년 {now.month}월 k8s 클러스터 정기점검 보고서"
     
     def _get_filename_prefix(self) -> str:
         now = datetime.now()
         if self.config.report_type == "weekly":
             week_num = now.isocalendar()[1]
-            return f"cmp_infra_check_{now.year}_W{week_num:02d}"
+            return f"k8s_cluster_check_{now.year}_W{week_num:02d}"
         else:
-            return f"cmp_infra_check_{now.year}_{now.month:02d}"
+            return f"k8s_cluster_check_{now.year}_{now.month:02d}"
     
     def generate_csv(self, results: List[Dict], summary: Dict) -> str:
         """CSV 보고서 생성"""
@@ -276,7 +276,7 @@ class CMPReportGenerator:
 
 def generate_reports(results: List[Dict], summary: Dict, config: ReportConfig = None) -> Dict[str, str]:
     """CSV 및 DOCX 보고서 생성"""
-    generator = CMPReportGenerator(config)
+    generator = K8SReportGenerator(config)
     generated = {}
     
     csv_path = generator.generate_csv(results, summary)
@@ -302,6 +302,6 @@ if __name__ == "__main__":
         'by_category': {'OS': {'ok': 1, 'warning': 0, 'critical': 0, 'unknown': 0}}
     }
     
-    config = ReportConfig(company_name="CMP 인프라", team_name="클라우드서비스팀")
+    config = ReportConfig(company_name="k8s 클러스터", team_name="클라우드서비스팀")
     paths = generate_reports(test_results, test_summary, config)
     print(f"생성된 보고서: {paths}")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CMP 인프라 점검 모듈
+k8s 클러스터 점검 모듈
 OS, Kubernetes 클러스터, K8s 서비스, CI/CD, DB 점검
 """
 
@@ -41,8 +41,8 @@ class CheckResult:
     severity: str = "medium"
 
 
-class CMPInfraChecker:
-    """CMP 인프라 점검 클래스"""
+class K8SInfraChecker:
+    """k8s 클러스터 점검 클래스"""
     
     def __init__(self, 
                  inventory_path: str = "config/inventory.yaml",
@@ -888,13 +888,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     
-    checker = CMPInfraChecker()
+    checker = K8SInfraChecker()
     checker.run_all_checks()
     summary = checker.get_summary()
     print(summary)
     
     print("\n" + "=" * 60)
-    print("📊 CMP 인프라 점검 결과 요약")
+    print("📊 k8s 클러스터 점검 결과 요약")
     print("=" * 60)
     print(f"총 점검 항목: {summary.get('total', 0)}")
     print(f"  ✅ 정상: {summary.get('ok', 0)}")

@@ -49,7 +49,7 @@ class RemoteExecutor:
         
     def _load_inventory(self, path: str) -> dict:
         """인벤토리 파일 로드"""
-        inventory_path = os.environ.get('CMP_INVENTORY_PATH', path)
+        inventory_path = os.environ.get('K8S_INVENTORY_PATH', path)
         
         try:
             with open(inventory_path, 'r', encoding='utf-8') as f:
@@ -229,7 +229,7 @@ class RemoteExecutor:
             import urllib.error
             
             req = urllib.request.Request(url, method='HEAD')
-            req.add_header('User-Agent', 'CMP-Infra-Check/1.0')
+            req.add_header('User-Agent', 'K8s-Infra-Check/1.0')
             
             with urllib.request.urlopen(req, timeout=timeout) as response:
                 return (response.status == expected_status, response.status)

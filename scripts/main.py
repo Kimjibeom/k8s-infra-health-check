@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CMP 인프라 정기점검 - 메인 스크립트
+k8s 클러스터 정기점검 - 메인 스크립트
 OS, Kubernetes, K8s 서비스, CI/CD, DB 점검 및 보고서 생성
 
 사용법:
@@ -21,8 +21,8 @@ sys.path.insert(0, SCRIPT_DIR)
 
 # 모듈 로드 (같은 폴더에 위치한다고 가정)
 try:
-    from checker import CMPInfraChecker
-    from report_generator import CMPReportGenerator, ReportConfig, generate_reports
+    from checker import K8SInfraChecker
+    from report_generator import K8SReportGenerator, ReportConfig, generate_reports
 except ImportError as e:
     print(f"❌ 필수 모듈을 로드할 수 없습니다: {e}")
     sys.exit(1)
@@ -44,14 +44,14 @@ def create_report_config(inventory: dict, report_type: str, output_dir: str = No
     
     return ReportConfig(
         report_type=report_type or report_conf.get('type', 'monthly'),
-        company_name=report_conf.get('company_name', 'CMP 인프라'),
+        company_name=report_conf.get('company_name', 'k8s 클러스터'),
         team_name=report_conf.get('team_name', '클라우드서비스팀'),
         output_dir=output_dir or report_conf.get('output_dir', './output')
     )
 
 
 def main():
-    parser = argparse.ArgumentParser(description='CMP 인프라 정기점검 보고서 생성')
+    parser = argparse.ArgumentParser(description='k8s 클러스터 정기점검 보고서 생성')
     
     parser.add_argument('--inventory', '-i',
         default=os.path.join(os.path.dirname(SCRIPT_DIR), 'config', 'inventory.yaml'),
@@ -94,14 +94,14 @@ def main():
     
     if not args.quiet:
         print("=" * 70)
-        print("🔍 CMP 인프라 정기점검 시작")
+        print("🔍 k8s 클러스터 정기점검 시작")
         print(f"   보고서 유형: {report_config.report_type}")
         print(f"   회사: {report_config.company_name}")
         print(f"   담당팀: {report_config.team_name}")
         print(f"   점검 환경: {env_display}")
         print("=" * 70)
     
-    checker = CMPInfraChecker(
+    checker = K8SInfraChecker(
         inventory_path=args.inventory,
         checks_path=args.checks
     )

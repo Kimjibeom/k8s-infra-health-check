@@ -2,7 +2,7 @@
 """
 output 디렉터리의 CSV 보고서를 읽어 기존 report_generator와 동일한 형식의 DOCX로 변환
 사용법: python3 csv_to_docx.py [CSV파일경로]
-        CSV 경로 생략 시 output/ 내 가장 최근 cmp_infra_check_*.csv 사용
+        CSV 경로 생략 시 output/ 내 가장 최근 k8s_cluster_check_*.csv 사용
 """
 
 import argparse
@@ -18,7 +18,7 @@ _root = os.path.dirname(_script_dir)
 if _root not in sys.path:
     sys.path.insert(0, _root)
 
-from scripts.report_generator import CMPReportGenerator, ReportConfig, DOCX_AVAILABLE
+from scripts.report_generator import K8SReportGenerator, ReportConfig, DOCX_AVAILABLE
 
 
 def parse_csv_metadata(lines: List[str]) -> Tuple[Dict, List[str]]:
@@ -29,7 +29,7 @@ def parse_csv_metadata(lines: List[str]) -> Tuple[Dict, List[str]]:
     metadata = {
         'title': '',
         'created': '',
-        'company_name': 'CMP 인프라',
+        'company_name': 'k8s 클러스터',
         'team_name': '클라우드서비스팀',
         'total': 0,
         'ok': 0,
@@ -123,14 +123,14 @@ def _build_summary(results: List[Dict], metadata: Dict) -> Dict:
 
 
 def get_latest_csv(output_dir: str) -> str:
-    """output_dir 내 cmp_infra_check_*.csv 중 수정 시간 기준 최신 파일 경로 반환."""
+    """output_dir 내 k8s_cluster_check_*.csv 중 수정 시간 기준 최신 파일 경로 반환."""
     if not os.path.isdir(output_dir):
         raise FileNotFoundError(f"디렉터리가 없습니다: {output_dir}")
 
     candidates = [
         os.path.join(output_dir, f)
         for f in os.listdir(output_dir)
-        if f.startswith('cmp_infra_check_') and f.endswith('.csv')
+        if f.startswith('k8s_cluster_check_') and f.endswith('.csv')
     ]
     if not candidates:
         raise FileNotFoundError(f"CSV 파일이 없습니다: {output_dir}")
@@ -138,7 +138,7 @@ def get_latest_csv(output_dir: str) -> str:
     return max(candidates, key=os.path.getmtime)
 
 
-class CSVToDocxGenerator(CMPReportGenerator):
+class CSVToDocxGenerator(K8SReportGenerator):
     """CSV 파일명/메타데이터에 맞춰 DOCX를 생성하는 생성기."""
 
     def __init__(self, csv_path: str, metadata: Dict, config: ReportConfig = None):
@@ -169,7 +169,7 @@ def generate_docx_from_csv(csv_path: str, output_path: str = None) -> str:
         output_path = os.path.join(output_dir, f"{base}.docx")
 
     config = ReportConfig(
-        company_name=metadata.get('company_name', 'CMP 인프라'),
+        company_name=metadata.get('company_name', 'k8s 클러스터'),
         team_name=metadata.get('team_name', '클라우드서비스팀'),
         output_dir=os.path.dirname(output_path),
     )
@@ -192,7 +192,7 @@ def main():
         'csv_file',
         nargs='?',
         default=None,
-        help='변환할 CSV 파일 경로 (생략 시 output/ 내 최신 cmp_infra_check_*.csv 사용)',
+        help='변환할 CSV 파일 경로 (생략 시 output/ 내 최신 k8s_cluster_check_*.csv 사용)',
     )
     parser.add_argument(
         '-o', '--output',
